@@ -1,0 +1,1846 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>코틀린 DSL</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="288655e8-3169-8094-9c8c-f8a38253771d" class="page sans"><header><h1 class="page-title">코틀린 DSL</h1><p class="page-description"></p></header><div class="page-body"><h2 id="c3bc212a-e6f7-41a4-ba2a-a59783faf72a" class="">1. DSL이란 무엇인가?</h2><h3 id="72a5a58f-9978-4411-a392-7e74e2480bd4" class="">1.1 DSL의 정의</h3><p id="9c930511-d1a0-44e7-8277-44a4ef6d1471" class="">DSL(Domain Specific Language)은 특정 도메인이나 문제 영역에 특화된 언어입니다. 범용 프로그래밍 언어와 달리, DSL은 특정 작업을 더 쉽고 명확하게 표현하기 위해 설계됩니다.</p><p id="ddd497d8-c773-470b-a7c4-44f37198d7a8" class=""><strong>범용 언어 vs DSL:</strong></p><ul id="e7fb0511-8448-4773-bc0c-f64263f2f337" class="bulleted-list"><li style="list-style-type:disc"><strong>범용 언어(GPL)</strong>: Java, Python, C++ 등 - 모든 종류의 문제를 해결할 수 있도록 설계</li></ul><ul id="e573acf9-7946-406a-82ad-6241e9c502b2" class="bulleted-list"><li style="list-style-type:disc"><strong>DSL</strong>: SQL, HTML, CSS, Gradle 등 - 특정 도메인의 문제 해결에 최적화</li></ul><h3 id="0b48d4d0-49db-42bb-ab4f-f29f759666a1" class="">1.2 DSL의 종류</h3><p id="68eae976-af0d-4bbe-a0a8-e75a407661ed" class=""><strong>외부 DSL (External DSL):</strong></p><ul id="b4510456-7f9b-476a-9ee2-775340c4789e" class="bulleted-list"><li style="list-style-type:disc">독립적인 문법과 구문을 가진 언어</li></ul><ul id="cf790268-c6be-4222-8ac8-de87b43c97e3" class="bulleted-list"><li style="list-style-type:disc">별도의 파서와 인터프리터가 필요</li></ul><ul id="40768bb7-fe02-45da-b0db-4022661a8fff" class="bulleted-list"><li style="list-style-type:disc">예: SQL, HTML, CSS, Regex</li></ul><p id="c5fd2935-84bd-4c4d-b4bb-cd9f630d0ac4" class=""><strong>내부 DSL (Internal DSL):</strong></p><ul id="9d9d407a-17c2-4a84-99b8-a78bccf21691" class="bulleted-list"><li style="list-style-type:disc">호스트 언어(일반 프로그래밍 언어) 내부에서 작성</li></ul><ul id="636e1c6e-3382-4faa-b7f1-aeb2b35bae36" class="bulleted-list"><li style="list-style-type:disc">호스트 언어의 문법을 활용</li></ul><ul id="91ac237b-6f49-44bf-a834-58a13c06e39f" class="bulleted-list"><li style="list-style-type:disc">별도의 파서 불필요</li></ul><ul id="68af1751-c601-4dfb-855c-e2a895036f2c" class="bulleted-list"><li style="list-style-type:disc">예: Kotlin의 HTML DSL, Gradle Kotlin DSL</li></ul><h3 id="180c8e2e-5be5-4fa8-891a-2aab866a8e0c" class="">1.3 DSL의 장점</h3><p id="6b362c0b-1d88-4aa6-a2f5-c3638f39aff6" class=""><strong>가독성 향상:</strong></p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="fab7706a-6f63-49b9-a2b9-344444b7fcac" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">// 일반적인 코드
+val table = Table()
+table.addRow(Row().apply {
+    addCell(Cell(&quot;Name&quot;))
+    addCell(Cell(&quot;Age&quot;))
+})
+
+// DSL을 사용한 코드
+table {
+    row {
+        cell(&quot;Name&quot;)
+        cell(&quot;Age&quot;)
+    }
+}</code></pre><p id="be0d8b55-09d3-42cd-a929-1da76a182971" class=""><strong>도메인 전문가와의 협업:</strong></p><ul id="333dd11d-7ec7-467d-aa86-33d40b74b09c" class="bulleted-list"><li style="list-style-type:disc">비개발자도 이해하기 쉬운 코드</li></ul><ul id="359609b9-b272-458a-8e54-36a0ef538e9e" class="bulleted-list"><li style="list-style-type:disc">비즈니스 로직을 명확하게 표현</li></ul><ul id="1879592a-a619-4a46-9ba7-24ea97e20a2b" class="bulleted-list"><li style="list-style-type:disc">유지보수성 향상</li></ul><p id="38d37ea7-7dfa-43c9-864b-95c110e607df" class=""><strong>생산성 증가:</strong></p><ul id="317a6b6b-deb2-4e83-8342-7e6c6de30c80" class="bulleted-list"><li style="list-style-type:disc">보일러플레이트 코드 감소</li></ul><ul id="e974dc17-3ca6-4c17-8652-122a9d4f65de" class="bulleted-list"><li style="list-style-type:disc">직관적인 API</li></ul><ul id="7db699a8-259f-4eca-8885-7216598f35b9" class="bulleted-list"><li style="list-style-type:disc">타입 안정성 보장</li></ul><h2 id="e44e0bcf-11d7-47f6-a133-cd24c52c78a8" class="">2. 코틀린이 DSL에 적합한 이유</h2><h3 id="c04289e7-77c5-43f7-8b8b-14738224c5b4" class="">2.1 코틀린의 DSL 지원 기능</h3><p id="20dd0302-a451-4356-8840-ac703b6c94bf" class=""><strong>1. 람다와 고차 함수:</strong></p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="5cc23c44-e459-40df-b79d-5f196d0e5123" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">fun buildString(action: StringBuilder.() -&gt; Unit): String {
+    val sb = StringBuilder()
+    sb.action()
+    return sb.toString()
+}
+
+val result = buildString {
+    append(&quot;Hello, &quot;)
+    append(&quot;World!&quot;)
+}</code></pre><p id="feef9371-233f-4b81-b51a-63d6f1b8a1cf" class=""><strong>2. 수신 객체 지정 람다 (Lambda with Receiver):</strong></p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="85be9b45-892e-4892-8e59-9f60e336604c" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">// 일반 람다
+fun configure(config: () -&gt; Unit) { }
+
+// 수신 객체 지정 람다
+fun configure(config: Configuration.() -&gt; Unit) { }
+
+class Configuration {
+    var timeout = 1000
+    var retries = 3
+}
+
+configure {
+    timeout = 5000  // this.timeout과 동일
+    retries = 5     // this.retries와 동일
+}</code></pre><p id="bcbb8d0a-98ab-46a8-bf42-ccbef4445933" class=""><strong>3. 확장 함수:</strong></p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="6f8e8425-6351-4e29-8c03-1715e8d48b17" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">fun String.addQuotes(): String = &quot;\&quot;$this\&quot;&quot;
+
+val quoted = &quot;Hello&quot;.addQuotes()  // &quot;Hello&quot;</code></pre><p id="4f75f755-09c7-4669-a6bd-91d894186caa" class=""><strong>4. 중위 함수 (Infix Functions):</strong></p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="bc6fac82-0de1-4555-babc-1e8cc4879eef" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">infix fun Int.pow(exponent: Int): Int {
+    return Math.pow(this.toDouble(), exponent.toDouble()).toInt()
+}
+
+val result = 2 pow 3  // 8</code></pre><p id="a392898c-d8e1-4dc5-a4e7-2ba9bb013066" class=""><strong>5. 연산자 오버로딩:</strong></p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="7e92a682-933b-4d4d-b50a-21040a4db2fd" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">data class Point(val x: Int, val y: Int) {
+    operator fun plus(other: Point) = Point(x + other.x, y + other.y)
+}
+
+val p1 = Point(1, 2)
+val p2 = Point(3, 4)
+val p3 = p1 + p2  // Point(4, 6)</code></pre><h3 id="52ff3247-d47d-4202-835d-c8ef39639cb2" class="">2.2 타입 안전 빌더</h3><p id="50ffe38c-0f84-4536-9664-3dd6c807f424" class="">코틀린 DSL의 핵심은 타입 안전 빌더입니다. 컴파일 타임에 오류를 잡을 수 있어 안전합니다.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="72a4ba68-0769-40ad-ba33-afc7f7528f31" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">html {
+    head {
+        title { +&quot;My Page&quot; }
+    }
+    body {
+        h1 { +&quot;Welcome&quot; }
+        p { +&quot;This is a paragraph&quot; }
+    }
+}</code></pre><h2 id="9b4be61f-6580-4f58-95d0-7277806e97e3" class="">3. DSL 만들기 - 기초</h2><h3 id="12264d41-da85-477f-9ec9-35f5d8d317b4" class="">3.1 간단한 DSL 예제</h3><p id="e285cfd4-0313-461c-af59-6507a0b4bcf6" class=""><strong>요구사항:</strong> 이메일을 구성하는 DSL 만들기</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="26b1085c-d813-4322-9cb9-ad941a4d07bf" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">class Email {
+    var from: String = &quot;&quot;
+    var to: String = &quot;&quot;
+    var subject: String = &quot;&quot;
+    var body: String = &quot;&quot;
+    
+    override fun toString(): String {
+        return &quot;&quot;&quot;
+            From: $from
+            To: $to
+            Subject: $subject
+            
+            $body
+        &quot;&quot;&quot;.trimIndent()
+    }
+}
+
+fun email(init: Email.() -&gt; Unit): Email {
+    val email = Email()
+    email.init()
+    return email
+}
+
+// 사용 예시
+val myEmail = email {
+    from = &quot;sender@example.com&quot;
+    to = &quot;receiver@example.com&quot;
+    subject = &quot;Hello&quot;
+    body = &quot;This is a test email&quot;
+}
+
+println(myEmail)</code></pre><h3 id="5a3bc2ba-831d-423e-908f-df0e6a3d51fb" class="">3.2 중첩된 DSL 구조</h3><p id="8abc0ce3-bbcd-4cc2-9cd8-51030f357894" class="">더 복잡한 구조를 위해 중첩된 빌더를 만들 수 있습니다.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="bc690eb8-835e-4307-a0b2-34b778409335" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">class HtmlElement(val name: String) {
+    private val children = mutableListOf&lt;HtmlElement&gt;()
+    private val attributes = mutableMapOf&lt;String, String&gt;()
+    var text: String = &quot;&quot;
+    
+    fun attribute(name: String, value: String) {
+        attributes[name] = value
+    }
+    
+    fun &lt;T: HtmlElement&gt; child(element: T, init: T.() -&gt; Unit): T {
+        element.init()
+        children.add(element)
+        return element
+    }
+    
+    override fun toString(): String = buildString {
+        append(&quot;&lt;$name&quot;)
+        attributes.forEach { (key, value) -&gt;
+            append(&quot; $key=\&quot;$value\&quot;&quot;)
+        }
+        append(&quot;&gt;&quot;)
+        if (text.isNotEmpty()) {
+            append(text)
+        }
+        children.forEach { append(it) }
+        append(&quot;&lt;/$name&gt;&quot;)
+    }
+}
+
+class Html : HtmlElement(&quot;html&quot;) {
+    fun head(init: Head.() -&gt; Unit) = child(Head(), init)
+    fun body(init: Body.() -&gt; Unit) = child(Body(), init)
+}
+
+class Head : HtmlElement(&quot;head&quot;) {
+    fun title(init: Title.() -&gt; Unit) = child(Title(), init)
+}
+
+class Title : HtmlElement(&quot;title&quot;)
+
+class Body : HtmlElement(&quot;body&quot;) {
+    fun h1(init: H1.() -&gt; Unit) = child(H1(), init)
+    fun p(init: P.() -&gt; Unit) = child(P(), init)
+    fun div(init: Div.() -&gt; Unit) = child(Div(), init)
+}
+
+class H1 : HtmlElement(&quot;h1&quot;)
+class P : HtmlElement(&quot;p&quot;)
+class Div : HtmlElement(&quot;div&quot;)
+
+fun html(init: Html.() -&gt; Unit): Html {
+    val html = Html()
+    html.init()
+    return html
+}
+
+// 사용 예시
+val page = html {
+    head {
+        title {
+            text = &quot;My Page&quot;
+        }
+    }
+    body {
+        h1 {
+            text = &quot;Welcome&quot;
+            attribute(&quot;class&quot;, &quot;header&quot;)
+        }
+        div {
+            attribute(&quot;id&quot;, &quot;content&quot;)
+            p {
+                text = &quot;This is a paragraph&quot;
+            }
+        }
+    }
+}
+
+println(page)</code></pre><h2 id="bacc793d-565d-4c03-a120-5aa13048ed54" class="">4. 고급 DSL 기법</h2><h3 id="c656dad2-4c0e-4bc7-bda3-9a76b3291537" class="">4.1 @DslMarker 어노테이션</h3><p id="4078e64b-19da-4024-869e-43f2101a69ce" class="">@DslMarker는 DSL 스코프를 제한하여 의도하지 않은 호출을 방지합니다.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="270b81f4-3f05-4b0a-9b44-22c3d7e50574" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">@DslMarker
+annotation class HtmlDsl
+
+@HtmlDsl
+abstract class Tag(val name: String) {
+    private val children = mutableListOf&lt;Tag&gt;()
+    protected fun &lt;T : Tag&gt; initTag(tag: T, init: T.() -&gt; Unit): T {
+        tag.init()
+        children.add(tag)
+        return tag
+    }
+}
+
+@HtmlDsl
+class HTML : Tag(&quot;html&quot;) {
+    fun head(init: Head.() -&gt; Unit) = initTag(Head(), init)
+    fun body(init: Body.() -&gt; Unit) = initTag(Body(), init)
+}
+
+@HtmlDsl
+class Head : Tag(&quot;head&quot;) {
+    fun title(init: Title.() -&gt; Unit) = initTag(Title(), init)
+}
+
+@HtmlDsl
+class Body : Tag(&quot;body&quot;) {
+    fun div(init: Div.() -&gt; Unit) = initTag(Div(), init)
+}
+
+@HtmlDsl
+class Div : Tag(&quot;div&quot;) {
+    fun p(init: P.() -&gt; Unit) = initTag(P(), init)
+}
+
+@HtmlDsl
+class P : Tag(&quot;p&quot;)
+
+@HtmlDsl
+class Title : Tag(&quot;title&quot;)
+
+// @DslMarker 덕분에 이런 코드는 컴파일 에러
+html {
+    body {
+        div {
+            // 여기서 head를 호출하면 에러!
+            // head { }  // 컴파일 에러
+            p { }
+        }
+    }
+}</code></pre><h3 id="27ec480c-797e-4f59-89d1-82c54b844383" class="">4.2 invoke 컨벤션</h3><p id="4ffdf0f6-39a8-4f6a-8d71-d5a74474ba9c" class="">invoke 연산자를 오버로딩하면 객체를 함수처럼 호출할 수 있습니다.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="49f18d10-83ad-4752-850e-5377031db18e" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">class Greeter(val greeting: String) {
+    operator fun invoke(name: String) {
+        println(&quot;$greeting, $name!&quot;)
+    }
+}
+
+val hello = Greeter(&quot;Hello&quot;)
+hello(&quot;World&quot;)  // &quot;Hello, World!&quot;
+
+// DSL에 활용
+class Router {
+    private val routes = mutableMapOf&lt;String, () -&gt; Unit&gt;()
+    
+    operator fun String.invoke(handler: () -&gt; Unit) {
+        routes[this] = handler
+    }
+    
+    fun handle(path: String) {
+        routes[path]?.invoke() ?: println(&quot;404 Not Found&quot;)
+    }
+}
+
+fun router(init: Router.() -&gt; Unit): Router {
+    val router = Router()
+    router.init()
+    return router
+}
+
+val myRouter = router {
+    &quot;/home&quot; {
+        println(&quot;Home page&quot;)
+    }
+    &quot;/about&quot; {
+        println(&quot;About page&quot;)
+    }
+}
+
+myRouter.handle(&quot;/home&quot;)   // &quot;Home page&quot;
+myRouter.handle(&quot;/about&quot;)  // &quot;About page&quot;</code></pre><h3 id="c14cd935-ad12-4361-a122-aeb7d288415e" class="">4.3 위임 프로퍼티를 활용한 DSL</h3><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="1e18e461-7c5f-4dd3-ab09-f2db3b005c29" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
+
+class ValidatedProperty&lt;T&gt;(
+    private var value: T,
+    private val validator: (T) -&gt; Boolean
+) : ReadWriteProperty&lt;Any?, T&gt; {
+    override fun getValue(thisRef: Any?, property: KProperty&lt;*&gt;): T = value
+    
+    override fun setValue(thisRef: Any?, property: KProperty&lt;*&gt;, value: T) {
+        if (validator(value)) {
+            this.value = value
+        } else {
+            throw IllegalArgumentException(&quot;Invalid value for ${property.name}&quot;)
+        }
+    }
+}
+
+fun &lt;T&gt; validated(initial: T, validator: (T) -&gt; Boolean) =
+    ValidatedProperty(initial, validator)
+
+class User {
+    var age: Int by validated(0) { it &gt;= 0 &amp;&amp; it &lt;= 150 }
+    var email: String by validated(&quot;&quot;) { it.contains(&quot;@&quot;) }
+}
+
+val user = User()
+user.age = 25        // OK
+user.email = &quot;test@example.com&quot;  // OK
+// user.age = -1     // IllegalArgumentException
+// user.email = &quot;invalid&quot;  // IllegalArgumentException</code></pre><h2 id="89518b00-fd3e-4537-8fa5-6ccb61b439d4" class="">5. 실전 DSL 예제</h2><h3 id="6f918d0d-3fa1-422f-9e42-edb039dc66e7" class="">5.1 SQL DSL</h3><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="f3a0151b-28d5-434e-9d3d-263e8635b6d6" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">class SqlSelectBuilder {
+    private val columns = mutableListOf&lt;String&gt;()
+    private var tableName: String = &quot;&quot;
+    private val conditions = mutableListOf&lt;String&gt;()
+    private val orderByColumns = mutableListOf&lt;String&gt;()
+    private var limitValue: Int? = null
+    
+    fun select(vararg columns: String) {
+        this.columns.addAll(columns)
+    }
+    
+    fun from(table: String) {
+        this.tableName = table
+    }
+    
+    infix fun String.eq(value: Any) {
+        conditions.add(&quot;$this = &#x27;${value}&#x27;&quot;)
+    }
+    
+    infix fun String.like(pattern: String) {
+        conditions.add(&quot;$this LIKE &#x27;$pattern&#x27;&quot;)
+    }
+    
+    fun where(init: SqlSelectBuilder.() -&gt; Unit) {
+        this.init()
+    }
+    
+    fun orderBy(vararg columns: String) {
+        orderByColumns.addAll(columns)
+    }
+    
+    fun limit(value: Int) {
+        limitValue = value
+    }
+    
+    fun build(): String = buildString {
+        append(&quot;SELECT &quot;)
+        append(if (columns.isEmpty()) &quot;*&quot; else columns.joinToString(&quot;, &quot;))
+        append(&quot; FROM $tableName&quot;)
+        
+        if (conditions.isNotEmpty()) {
+            append(&quot; WHERE &quot;)
+            append(conditions.joinToString(&quot; AND &quot;))
+        }
+        
+        if (orderByColumns.isNotEmpty()) {
+            append(&quot; ORDER BY &quot;)
+            append(orderByColumns.joinToString(&quot;, &quot;))
+        }
+        
+        limitValue?.let {
+            append(&quot; LIMIT $it&quot;)
+        }
+    }
+}
+
+fun query(init: SqlSelectBuilder.() -&gt; Unit): String {
+    val builder = SqlSelectBuilder()
+    builder.init()
+    return builder.build()
+}
+
+// 사용 예시
+val sql = query {
+    select(&quot;id&quot;, &quot;name&quot;, &quot;email&quot;)
+    from(&quot;users&quot;)
+    where {
+        &quot;age&quot; eq 25
+        &quot;name&quot; like &quot;%John%&quot;
+    }
+    orderBy(&quot;name&quot;, &quot;id&quot;)
+    limit(10)
+}
+
+println(sql)
+// SELECT id, name, email FROM users WHERE age = &#x27;25&#x27; AND name LIKE &#x27;%John%&#x27; ORDER BY name, id LIMIT 10</code></pre><h3 id="7b7bd2ef-ae55-4cb4-bf3d-3667859af604" class="">5.2 JSON 빌더 DSL</h3><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2ff3b60f-544f-4b99-9aa4-6da6c9051930" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">abstract class JsonElement {
+    abstract fun render(): String
+}
+
+class JsonObject : JsonElement() {
+    private val properties = mutableMapOf&lt;String, JsonElement&gt;()
+    
+    infix fun String.to(value: Any?) {
+        properties[this] = when (value) {
+            null -&gt; JsonNull
+            is String -&gt; JsonString(value)
+            is Number -&gt; JsonNumber(value)
+            is Boolean -&gt; JsonBoolean(value)
+            is JsonElement -&gt; value
+            else -&gt; JsonString(value.toString())
+        }
+    }
+    
+    fun obj(key: String, init: JsonObject.() -&gt; Unit) {
+        val obj = JsonObject()
+        obj.init()
+        properties[key] = obj
+    }
+    
+    fun array(key: String, init: JsonArray.() -&gt; Unit) {
+        val arr = JsonArray()
+        arr.init()
+        properties[key] = arr
+    }
+    
+    override fun render(): String {
+        return properties.entries.joinToString(
+            separator = &quot;, &quot;,
+            prefix = &quot;{&quot;,
+            postfix = &quot;}&quot;
+        ) { (key, value) -&gt;
+            &quot;\&quot;$key\&quot;: ${value.render()}&quot;
+        }
+    }
+}
+
+class JsonArray : JsonElement() {
+    private val elements = mutableListOf&lt;JsonElement&gt;()
+    
+    operator fun Any?.unaryPlus() {
+        elements.add(when (this) {
+            null -&gt; JsonNull
+            is String -&gt; JsonString(this)
+            is Number -&gt; JsonNumber(this)
+            is Boolean -&gt; JsonBoolean(this)
+            is JsonElement -&gt; this
+            else -&gt; JsonString(this.toString())
+        })
+    }
+    
+    fun obj(init: JsonObject.() -&gt; Unit) {
+        val obj = JsonObject()
+        obj.init()
+        elements.add(obj)
+    }
+    
+    override fun render(): String {
+        return elements.joinToString(
+            separator = &quot;, &quot;,
+            prefix = &quot;[&quot;,
+            postfix = &quot;]&quot;
+        ) { it.render() }
+    }
+}
+
+class JsonString(private val value: String) : JsonElement() {
+    override fun render() = &quot;\&quot;$value\&quot;&quot;
+}
+
+class JsonNumber(private val value: Number) : JsonElement() {
+    override fun render() = value.toString()
+}
+
+class JsonBoolean(private val value: Boolean) : JsonElement() {
+    override fun render() = value.toString()
+}
+
+object JsonNull : JsonElement() {
+    override fun render() = &quot;null&quot;
+}
+
+fun json(init: JsonObject.() -&gt; Unit): JsonObject {
+    val obj = JsonObject()
+    obj.init()
+    return obj
+}
+
+// 사용 예시
+val jsonData = json {
+    &quot;name&quot; to &quot;John Doe&quot;
+    &quot;age&quot; to 30
+    &quot;isActive&quot; to true
+    &quot;email&quot; to null
+    
+    obj(&quot;address&quot;) {
+        &quot;street&quot; to &quot;123 Main St&quot;
+        &quot;city&quot; to &quot;New York&quot;
+        &quot;zipCode&quot; to &quot;10001&quot;
+    }
+    
+    array(&quot;hobbies&quot;) {
+        +&quot;reading&quot;
+        +&quot;swimming&quot;
+        +&quot;coding&quot;
+    }
+    
+    array(&quot;friends&quot;) {
+        obj {
+            &quot;name&quot; to &quot;Alice&quot;
+            &quot;age&quot; to 28
+        }
+        obj {
+            &quot;name&quot; to &quot;Bob&quot;
+            &quot;age&quot; to 32
+        }
+    }
+}
+
+println(jsonData.render())</code></pre><h3 id="ff3f7f4e-7aac-4fad-99a6-afd68f3d65b0" class="">5.3 테스트 DSL (Behavior-Driven Development)</h3><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="559f201a-b602-4009-a6e1-e17433ba6752" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">class TestSuite(val name: String) {
+    private val tests = mutableListOf&lt;Test&gt;()
+    
+    fun test(description: String, block: TestContext.() -&gt; Unit) {
+        tests.add(Test(description, block))
+    }
+    
+    fun run() {
+        println(&quot;\n=== Running test suite: $name ===&quot;)
+        var passed = 0
+        var failed = 0
+        
+        tests.forEach { test -&gt;
+            try {
+                val context = TestContext()
+                test.block(context)
+                println(&quot;✓ ${test.description}&quot;)
+                passed++
+            } catch (e: AssertionError) {
+                println(&quot;✗ ${test.description}: ${e.message}&quot;)
+                failed++
+            }
+        }
+        
+        println(&quot;\nResults: $passed passed, $failed failed&quot;)
+    }
+}
+
+class Test(val description: String, val block: TestContext.() -&gt; Unit)
+
+class TestContext {
+    infix fun &lt;T&gt; T.shouldBe(expected: T) {
+        if (this != expected) {
+            throw AssertionError(&quot;Expected $expected but got $this&quot;)
+        }
+    }
+    
+    infix fun &lt;T&gt; T.shouldNotBe(expected: T) {
+        if (this == expected) {
+            throw AssertionError(&quot;Expected not to be $expected&quot;)
+        }
+    }
+    
+    infix fun Boolean.shouldBe(expected: Boolean) {
+        if (this != expected) {
+            throw AssertionError(&quot;Expected $expected but got $this&quot;)
+        }
+    }
+    
+    fun &lt;T&gt; T.shouldBeNull() {
+        if (this != null) {
+            throw AssertionError(&quot;Expected null but got $this&quot;)
+        }
+    }
+    
+    fun &lt;T&gt; T.shouldNotBeNull() {
+        if (this == null) {
+            throw AssertionError(&quot;Expected not null&quot;)
+        }
+    }
+}
+
+fun describe(name: String, init: TestSuite.() -&gt; Unit): TestSuite {
+    val suite = TestSuite(name)
+    suite.init()
+    return suite
+}
+
+// 사용 예시
+val mathTests = describe(&quot;Math operations&quot;) {
+    test(&quot;addition should work correctly&quot;) {
+        val result = 2 + 2
+        result shouldBe 4
+    }
+    
+    test(&quot;subtraction should work correctly&quot;) {
+        val result = 5 - 3
+        result shouldBe 2
+    }
+    
+    test(&quot;null handling&quot;) {
+        val nullValue: String? = null
+        nullValue.shouldBeNull()
+        
+        val notNull: String? = &quot;hello&quot;
+        notNull.shouldNotBeNull()
+    }
+    
+    test(&quot;boolean assertions&quot;) {
+        val isTrue = true
+        isTrue shouldBe true
+        
+        val isFalse = false
+        isFalse shouldBe false
+    }
+}
+
+mathTests.run()</code></pre><h3 id="4eb1fb50-c495-4bb1-846d-91d4ee67ae91" class="">5.4 Gradle Kotlin DSL 스타일</h3><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="6ca46e70-b0ac-4876-bbf5-c39604cd3bee" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">class Project {
+    var version: String = &quot;1.0.0&quot;
+    var group: String = &quot;&quot;
+    
+    private val dependencies = mutableListOf&lt;Dependency&gt;()
+    private val tasks = mutableMapOf&lt;String, Task&gt;()
+    
+    fun dependencies(init: DependencyHandler.() -&gt; Unit) {
+        val handler = DependencyHandler()
+        handler.init()
+        dependencies.addAll(handler.getDependencies())
+    }
+    
+    fun tasks(init: TaskContainer.() -&gt; Unit) {
+        val container = TaskContainer()
+        container.init()
+        tasks.putAll(container.getTasks())
+    }
+    
+    fun printConfiguration() {
+        println(&quot;Project Configuration:&quot;)
+        println(&quot;  Group: $group&quot;)
+        println(&quot;  Version: $version&quot;)
+        println(&quot;\nDependencies:&quot;)
+        dependencies.forEach {
+            println(&quot;  ${it.scope}: ${it.notation}&quot;)
+        }
+        println(&quot;\nTasks:&quot;)
+        tasks.forEach { (name, task) -&gt;
+            println(&quot;  $name: ${task.description}&quot;)
+        }
+    }
+}
+
+data class Dependency(val scope: String, val notation: String)
+
+class DependencyHandler {
+    private val dependencies = mutableListOf&lt;Dependency&gt;()
+    
+    fun implementation(notation: String) {
+        dependencies.add(Dependency(&quot;implementation&quot;, notation))
+    }
+    
+    fun testImplementation(notation: String) {
+        dependencies.add(Dependency(&quot;testImplementation&quot;, notation))
+    }
+    
+    fun api(notation: String) {
+        dependencies.add(Dependency(&quot;api&quot;, notation))
+    }
+    
+    fun getDependencies() = dependencies
+}
+
+class Task(val name: String, var description: String = &quot;&quot;, val action: () -&gt; Unit)
+
+class TaskContainer {
+    private val tasks = mutableMapOf&lt;String, Task&gt;()
+    
+    fun register(name: String, init: Task.() -&gt; Unit) {
+        val task = Task(name, &quot;&quot;) { }
+        task.init()
+        tasks[name] = task
+    }
+    
+    fun getTasks() = tasks
+}
+
+fun project(init: Project.() -&gt; Unit): Project {
+    val project = Project()
+    project.init()
+    return project
+}
+
+// 사용 예시
+val myProject = project {
+    group = &quot;com.example&quot;
+    version = &quot;2.0.0&quot;
+    
+    dependencies {
+        implementation(&quot;org.jetbrains.kotlin:kotlin-stdlib:1.9.0&quot;)
+        implementation(&quot;com.google.code.gson:gson:2.10.1&quot;)
+        testImplementation(&quot;org.junit.jupiter:junit-jupiter:5.9.0&quot;)
+        api(&quot;com.squareup.okhttp3:okhttp:4.11.0&quot;)
+    }
+    
+    tasks {
+        register(&quot;clean&quot;) {
+            description = &quot;Cleans the build directory&quot;
+        }
+        
+        register(&quot;build&quot;) {
+            description = &quot;Builds the project&quot;
+        }
+        
+        register(&quot;test&quot;) {
+            description = &quot;Runs the tests&quot;
+        }
+    }
+}
+
+myProject.printConfiguration()</code></pre><h2 id="d59460e6-23df-41d7-a7f4-dff0179291e8" class="">6. 실제 프로젝트에서의 DSL 활용</h2><h3 id="744fb4e0-9eee-436a-bc6f-9ddb13951157" class="">6.1 Exposed - 데이터베이스 DSL</h3><p id="ff285998-ee6e-438d-aa05-721b610fecfc" class="">Exposed는 JetBrains에서 만든 Kotlin SQL 라이브러리입니다.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2814ed1f-f843-4c2c-b5f3-ee941e17d269" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">// Exposed DSL 예시
+object Users : Table() {
+    val id = integer(&quot;id&quot;).autoIncrement()
+    val name = varchar(&quot;name&quot;, 50)
+    val email = varchar(&quot;email&quot;, 100)
+    
+    override val primaryKey = PrimaryKey(id)
+}
+
+// 사용
+transaction {
+    // Create
+    Users.insert {
+        it[name] = &quot;John Doe&quot;
+        it[email] = &quot;john@example.com&quot;
+    }
+    
+    // Read
+    Users.select { Users.name eq &quot;John Doe&quot; }
+        .forEach {
+            println(it[Users.email])
+        }
+    
+    // Update
+    Users.update({ Users.id eq 1 }) {
+        it[email] = &quot;newemail@example.com&quot;
+    }
+    
+    // Delete
+    Users.deleteWhere { Users.id eq 1 }
+}</code></pre><h3 id="f69cc991-97cf-47df-b61c-4d3f12312345" class="">6.2 Ktor - 웹 프레임워크 DSL</h3><p id="c6f6af00-27d8-4acf-9d8d-7072b55c2d9f" class="">Ktor는 비동기 웹 애플리케이션을 위한 Kotlin 프레임워크입니다.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="d31c0404-1008-43d0-8635-a39c56a2a3a0" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">fun Application.module() {
+    routing {
+        get(&quot;/&quot;) {
+            call.respondText(&quot;Hello, World!&quot;)
+        }
+        
+        route(&quot;/api&quot;) {
+            get(&quot;/users&quot;) {
+                call.respond(listOf(&quot;User1&quot;, &quot;User2&quot;))
+            }
+            
+            post(&quot;/users&quot;) {
+                val user = call.receive&lt;User&gt;()
+                call.respond(HttpStatusCode.Created, user)
+            }
+        }
+    }
+    
+    install(ContentNegotiation) {
+        json(Json {
+            prettyPrint = true
+            isLenient = true
+        })
+    }
+}</code></pre><h3 id="e4e04e59-b714-47a2-ab68-dfab3db5ee87" class="">6.3 kotlinx.html - HTML DSL</h3><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="bde96c49-e4c2-4923-be3e-c3cce4d7affd" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">import kotlinx.html.*
+import kotlinx.html.stream.createHTML
+
+val html = createHTML().html {
+    head {
+        title { +&quot;My Page&quot; }
+        link(rel = &quot;stylesheet&quot;, href = &quot;/styles.css&quot;)
+    }
+    body {
+        div(classes = &quot;container&quot;) {
+            h1 { +&quot;Welcome&quot; }
+            
+            ul {
+                li { +&quot;Item 1&quot; }
+                li { +&quot;Item 2&quot; }
+                li { +&quot;Item 3&quot; }
+            }
+            
+            form(action = &quot;/submit&quot;, method = FormMethod.post) {
+                input(type = InputType.text, name = &quot;username&quot;) {
+                    placeholder = &quot;Enter username&quot;
+                }
+                input(type = InputType.password, name = &quot;password&quot;) {
+                    placeholder = &quot;Enter password&quot;
+                }
+                button(type = ButtonType.submit) {
+                    +&quot;Login&quot;
+                }
+            }
+        }
+    }
+}</code></pre><h2 id="5a92131c-d9ac-4ff6-97d0-685d9336bf6a" class="">7. DSL 설계 베스트 프랙티스</h2><h3 id="e806c6d3-00e8-4e69-8d2a-e97b5b77f0da" class="">7.1 명확한 스코프 정의</h3><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="5c1e9128-b853-4c0d-b4e6-7e2709d6f54d" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">// 나쁜 예 - 스코프가 불명확
+fun buildHtml(init: () -&gt; Unit) {
+    // ...
+}
+
+// 좋은 예 - 명확한 수신 객체
+fun buildHtml(init: Html.() -&gt; Unit) {
+    val html = Html()
+    html.init()
+}</code></pre><h3 id="aa21dc21-d6d3-4e2c-bbef-35c8235529d9" class="">7.2 @DslMarker 사용</h3><p id="80893744-3802-4dff-ba31-8ec11caa1d17" class="">중첩된 DSL에서는 항상 @DslMarker를 사용하여 스코프를 제한하세요.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="c443c03f-a1a4-4e69-a3b3-e01ece7c352a" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">@DslMarker
+annotation class MyDsl
+
+@MyDsl
+class OuterBuilder {
+    fun inner(init: InnerBuilder.() -&gt; Unit) { }
+}
+
+@MyDsl
+class InnerBuilder {
+    fun action() { }
+}</code></pre><h3 id="1053f152-bcf2-425a-a040-bc12f09a268b" class="">7.3 일관된 네이밍 컨벤션</h3><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="dddcbe2a-1829-49fb-91f1-7cfe2232b279" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">// 빌더 함수는 동사나 명사로
+fun html(init: Html.() -&gt; Unit)
+fun createServer(init: Server.() -&gt; Unit)
+
+// 프로퍼티 설정은 명사로
+var host: String
+var port: Int
+
+// 액션은 동사로
+fun start()
+fun stop()
+fun restart()</code></pre><h3 id="0582ac42-eae3-4955-993d-73c8565bfbc8" class="">7.4 타입 안전성 보장</h3><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3d3bcdc7-01a4-46e5-a962-b70b80fd182c" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">// 타입을 명확하게 정의
+enum class HttpMethod {
+    GET, POST, PUT, DELETE
+}
+
+class Route {
+    fun method(method: HttpMethod) { }
+}
+
+// 사용
+route {
+    method(HttpMethod.GET)  // 타입 안전
+}</code></pre><h3 id="0cac82d0-7570-4920-a3a7-a73deb3706e4" class="">7.5 적절한 기본값 제공</h3><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="9c877302-f68d-44f5-a4af-3283d3caf8ee" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">class ServerConfig {
+    var host: String = &quot;localhost&quot;
+    var port: Int = 8080
+    var timeout: Long = 30_000L
+    var maxConnections: Int = 100
+}
+
+fun server(init: ServerConfig.() -&gt; Unit = {}): ServerConfig {
+    val config = ServerConfig()
+    config.init()
+    return config
+}
+
+// 모든 기본값 사용
+val server1 = server()
+
+// 일부만 오버라이드
+val server2 = server {
+    port = 9090
+}</code></pre><h3 id="73a67b93-65b8-4cc5-a402-e3fa0e89df31" class="">7.6 문서화</h3><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="446207e7-4752-468b-8d04-f3bd7ed4f094" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">/**
+ * HTML 문서를 생성하는 DSL 빌더
+ *
+ * 사용 예:
+ * ```
+ * val page = html {
+ *     head {
+ *         title { +&quot;My Page&quot; }
+ *     }
+ *     body {
+ *         h1 { +&quot;Hello World&quot; }
+ *     }
+ * }
+ * ```
+ */
+fun html(init: Html.() -&gt; Unit): Html {
+    val html = Html()
+    html.init()
+    return html
+}</code></pre><h2 id="a6a63e90-8d54-4f21-b1b3-bd280dc87855" class="">8. 고급 패턴과 테크닉</h2><h3 id="41ada430-bd43-41b2-add8-ca147e87efcf" class="">8.1 제네릭을 활용한 DSL</h3><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="90969187-58f8-466e-8fb3-e9b9705373a2" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">class DataBuilder&lt;T&gt; {
+    private val items = mutableListOf&lt;T&gt;()
+    
+    fun add(item: T) {
+        items.add(item)
+    }
+    
+    operator fun T.unaryPlus() {
+        items.add(this)
+    }
+    
+    fun build(): List&lt;T&gt; = items.toList()
+}
+
+fun &lt;T&gt; listOf(init: DataBuilder&lt;T&gt;.() -&gt; Unit): List&lt;T&gt; {
+    val builder = DataBuilder&lt;T&gt;()
+    builder.init()
+    return builder.build()
+}
+
+// 사용
+val numbers = listOf&lt;Int&gt; {
+    +1
+    +2
+    +3
+}
+
+val names = listOf&lt;String&gt; {
+    +&quot;Alice&quot;
+    +&quot;Bob&quot;
+    +&quot;Charlie&quot;
+}</code></pre><h3 id="4d867262-96d4-4ede-a24a-cd2604d25af0" class="">8.2 확장 함수를 활용한 DSL 확장</h3><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="b699404a-d95b-49dd-a043-7efb5d8a2b55" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">class HtmlBuilder {
+    private val elements = mutableListOf&lt;String&gt;()
+    
+    fun div(content: String) {
+        elements.add(&quot;&lt;div&gt;$content&lt;/div&gt;&quot;)
+    }
+    
+    fun getHtml() = elements.joinToString(&quot;\n&quot;)
+}
+
+// 기본 DSL
+fun html(init: HtmlBuilder.() -&gt; Unit): String {
+    val builder = HtmlBuilder()
+    builder.init()
+    return builder.getHtml()
+}
+
+// 확장 함수로 기능 추가
+fun HtmlBuilder.bootstrap() {
+    div(&quot;&lt;link rel=&#x27;stylesheet&#x27; href=&#x27;bootstrap.css&#x27;&gt;&quot;)
+}
+
+fun HtmlBuilder.container(init: HtmlBuilder.() -&gt; Unit) {
+    div(&quot;&lt;div class=&#x27;container&#x27;&gt;&quot;)
+    init()
+    div(&quot;&lt;/div&gt;&quot;)
+}
+
+// 사용
+val page = html {
+    bootstrap()
+    container {
+        div(&quot;Content here&quot;)
+    }
+}</code></pre><h3 id="eea21b55-993e-471d-9022-eea2e43efccc" class="">8.3 조건부 DSL</h3><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="d33c9409-170c-4d4c-8256-45cf138421d4" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">class ConditionalBuilder {
+    private val elements = mutableListOf&lt;String&gt;()
+    
+    fun String.onlyIf(condition: Boolean) {
+        if (condition) {
+            elements.add(this)
+        }
+    }
+    
+    fun String.unless(condition: Boolean) {
+        if (!condition) {
+            elements.add(this)
+        }
+    }
+    
+    fun getResult() = elements
+}
+
+fun buildList(init: ConditionalBuilder.() -&gt; Unit): List&lt;String&gt; {
+    val builder = ConditionalBuilder()
+    builder.init()
+    return builder.getResult()
+}
+
+// 사용
+val isAdmin = true
+val isGuest = false
+
+val menu = buildList {
+    &quot;Home&quot; onlyIf true
+    &quot;Dashboard&quot; onlyIf isAdmin
+    &quot;Login&quot; unless isAdmin
+    &quot;Admin Panel&quot; onlyIf (isAdmin &amp;&amp; !isGuest)
+}
+
+println(menu)  // [Home, Dashboard, Admin Panel]</code></pre><h3 id="38fa20cf-14f0-4716-a15e-b4f2c92c2187" class="">8.4 체이닝 DSL</h3><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="64d042f5-a428-4369-8d73-6f5759a6a311" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">class RequestBuilder {
+    private var url: String = &quot;&quot;
+    private val headers = mutableMapOf&lt;String, String&gt;()
+    private val params = mutableMapOf&lt;String, String&gt;()
+    private var body: String? = null
+    
+    fun url(url: String) = apply {
+        this.url = url
+    }
+    
+    fun header(key: String, value: String) = apply {
+        headers[key] = value
+    }
+    
+    fun param(key: String, value: String) = apply {
+        params[key] = value
+    }
+    
+    fun body(body: String) = apply {
+        this.body = body
+    }
+    
+    fun build(): String {
+        return &quot;&quot;&quot;
+            URL: $url
+            Headers: $headers
+            Params: $params
+            Body: $body
+        &quot;&quot;&quot;.trimIndent()
+    }
+}
+
+fun request(init: RequestBuilder.() -&gt; Unit): String {
+    val builder = RequestBuilder()
+    builder.init()
+    return builder.build()
+}
+
+// 사용 - 체이닝 스타일
+val request1 = RequestBuilder()
+    .url(&quot;https://api.example.com/users&quot;)
+    .header(&quot;Authorization&quot;, &quot;Bearer token&quot;)
+    .header(&quot;Content-Type&quot;, &quot;application/json&quot;)
+    .param(&quot;limit&quot;, &quot;10&quot;)
+    .param(&quot;offset&quot;, &quot;0&quot;)
+    .body(&quot;{\&quot;name\&quot;: \&quot;John\&quot;}&quot;)
+    .build()
+
+// 또는 DSL 스타일
+val request2 = request {
+    url(&quot;https://api.example.com/users&quot;)
+    header(&quot;Authorization&quot;, &quot;Bearer token&quot;)
+    header(&quot;Content-Type&quot;, &quot;application/json&quot;)
+    param(&quot;limit&quot;, &quot;10&quot;)
+    body(&quot;{\&quot;name\&quot;: \&quot;John\&quot;}&quot;)
+}</code></pre><h2 id="18f777d5-da5d-416b-8d8e-8af0215983e3" class="">9. 성능 고려사항</h2><h3 id="edfaea37-f358-4a07-9024-82312f63d6dc" class="">9.1 인라인 함수 사용</h3><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="b8122260-4d7a-4c9e-82b4-46d9d3087857" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">// 람다 오버헤드 제거
+inline fun &lt;T&gt; List&lt;T&gt;.fastForEach(action: (T) -&gt; Unit) {
+    for (element in this) action(element)
+}
+
+// DSL에 적용
+inline fun html(init: Html.() -&gt; Unit): Html {
+    val html = Html()
+    html.init()
+    return html
+}</code></pre><h3 id="02688b90-7092-4335-a27d-ca366570badf" class="">9.2 객체 재사용</h3><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="c8e65108-77d6-4930-8efe-aacb3c89d281" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">class StringBuilderPool {
+    private val pool = ArrayDeque&lt;StringBuilder&gt;()
+    
+    fun acquire(): StringBuilder {
+        return if (pool.isNotEmpty()) {
+            pool.removeLast().apply { clear() }
+        } else {
+            StringBuilder()
+        }
+    }
+    
+    fun release(sb: StringBuilder) {
+        if (pool.size &lt; 10) {
+            pool.add(sb)
+        }
+    }
+}
+
+// DSL에서 사용
+fun buildString(init: StringBuilder.() -&gt; Unit): String {
+    val sb = pool.acquire()
+    try {
+        sb.init()
+        return sb.toString()
+    } finally {
+        pool.release(sb)
+    }
+}</code></pre><h3 id="f2a33ca8-7537-4f64-9242-424a43e4951f" class="">9.3 지연 초기화</h3><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="b8055b07-d686-47ae-b3e2-520d6094953d" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">class LazyHtml {
+    private val elements by lazy { mutableListOf&lt;HtmlElement&gt;() }
+    
+    fun div(init: Div.() -&gt; Unit) {
+        elements.add(Div().apply(init))
+    }
+    
+    fun render(): String {
+        return if (elements.isEmpty()) {
+            &quot;&quot;
+        } else {
+            elements.joinToString(&quot;\n&quot;) { it.render() }
+        }
+    }
+}</code></pre><h2 id="25a3663e-b7af-4504-87da-6383614b888e" class="">10. 테스팅</h2><h3 id="94d0f0f2-dedb-4e7d-ae43-44221f49a490" class="">10.1 DSL 유닛 테스트</h3><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="e8b3cbf5-7b54-4470-8215-4b32d0cfac12" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Assertions.*
+
+class HtmlDslTest {
+    @Test
+    fun `should build simple HTML`() {
+        val html = html {
+            head {
+                title { text = &quot;Test&quot; }
+            }
+            body {
+                h1 { text = &quot;Hello&quot; }
+            }
+        }
+        
+        val result = html.toString()
+        assertTrue(result.contains(&quot;&lt;title&gt;Test&lt;/title&gt;&quot;))
+        assertTrue(result.contains(&quot;&lt;h1&gt;Hello&lt;/h1&gt;&quot;))
+    }
+    
+    @Test
+    fun `should handle nested elements`() {
+        val html = html {
+            body {
+                div {
+                    p { text = &quot;Paragraph 1&quot; }
+                    p { text = &quot;Paragraph 2&quot; }
+                }
+            }
+        }
+        
+        val result = html.toString()
+        assertTrue(result.contains(&quot;&lt;div&gt;&quot;))
+        assertTrue(result.contains(&quot;&lt;p&gt;Paragraph 1&lt;/p&gt;&quot;))
+        assertTrue(result.contains(&quot;&lt;p&gt;Paragraph 2&lt;/p&gt;&quot;))
+    }
+}</code></pre><h3 id="8a50e4af-8b4b-4005-b5d7-a75ccea837cd" class="">10.2 DSL 통합 테스트</h3><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="145d1958-4549-4338-b966-340ad81caada" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">class SqlDslIntegrationTest {
+    @Test
+    fun `should generate correct SQL query`() {
+        val sql = query {
+            select(&quot;name&quot;, &quot;email&quot;)
+            from(&quot;users&quot;)
+            where {
+                &quot;age&quot; eq 25
+            }
+            limit(10)
+        }
+        
+        val expected = &quot;SELECT name, email FROM users WHERE age = &#x27;25&#x27; LIMIT 10&quot;
+        assertEquals(expected, sql)
+    }
+}</code></pre><h2 id="0f4d7103-cf5b-495f-bd8e-39babe90ff2c" class="">11. 일반적인 실수와 해결방법</h2><h3 id="72dc1e41-4854-4ec9-86e1-2954a752bcc9" class="">11.1 스코프 누수</h3><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3094768b-df77-47fb-8b38-9f6c026e8b41" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">// 문제
+html {
+    body {
+        div {
+            // 여기서 html 스코프에 접근 가능 (의도하지 않음)
+            head { }  // 잘못된 위치
+        }
+    }
+}
+
+// 해결: @DslMarker 사용
+@DslMarker
+annotation class HtmlDsl
+
+@HtmlDsl
+class Html { }
+
+@HtmlDsl
+class Body { }</code></pre><h3 id="ea941afc-9a2c-4e52-b810-380a7c880f52" class="">11.2 타입 추론 실패</h3><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="762cb716-b26f-46e9-861c-e7a58bfc06aa" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">// 문제
+val builder = {
+    // 타입 추론 불가
+}
+
+// 해결: 명시적 타입 지정
+val builder: Html.() -&gt; Unit = {
+    head { }
+    body { }
+}</code></pre><h3 id="e8da2dd1-0d45-45f3-b0fd-39e01f6e7489" class="">11.3 가변성 문제</h3><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="abb4be87-297d-4bcb-80ac-dbeda1ef99a2" class="code code-wrap"><code class="language-Kotlin" style="white-space:pre-wrap;word-break:break-all">// 문제 - 외부에서 수정 가능
+class Config {
+    val servers = mutableListOf&lt;String&gt;()
+}
+
+// 해결 - 불변 리스트 반환
+class Config {
+    private val _servers = mutableListOf&lt;String&gt;()
+    val servers: List&lt;String&gt; get() = _servers.toList()
+    
+    fun addServer(server: String) {
+        _servers.add(server)
+    }
+}</code></pre><h2 id="55df7d23-2a5a-4c78-8674-fe6b72049f58" class="">12. 결론</h2><p id="7012fe0c-e4f2-4a5d-9bdd-3b2f186f3810" class="">코틀린 DSL은 다음과 같은 특징을 가집니다:</p><p id="1f24f28c-d012-465c-b002-66ea8f88fd60" class=""><strong>장점:</strong></p><ul id="728bbc99-f889-426c-a6ab-ec28bba17051" class="bulleted-list"><li style="list-style-type:disc">높은 가독성</li></ul><ul id="c858afa7-0b9f-435c-8614-69796cf277c6" class="bulleted-list"><li style="list-style-type:disc">타입 안전성</li></ul><ul id="dca8c4bb-5a88-4bc0-bf77-5f8dab2a81fc" class="bulleted-list"><li style="list-style-type:disc">IDE 지원 (자동완성, 리팩토링)</li></ul><ul id="debda4f0-bf8b-4ebb-80df-8d8e522193c8" class="bulleted-list"><li style="list-style-type:disc">컴파일 타임 검증</li></ul><ul id="88b01fe7-c374-4fe9-b400-6bac26a26da2" class="bulleted-list"><li style="list-style-type:disc">도메인 로직을 명확하게 표현</li></ul><p id="3c29d5d0-63bd-4b7e-9a66-d30d820e2baf" class=""><strong>단점:</strong></p><ul id="fbd7ba22-89d8-48e0-80cc-52cbf06a005e" class="bulleted-list"><li style="list-style-type:disc">초기 학습 곡선</li></ul><ul id="cdefc7e4-bbbc-4c3f-b68e-fb3dc1089464" class="bulleted-list"><li style="list-style-type:disc">과도한 사용 시 복잡도 증가</li></ul><ul id="f91e4041-169a-4c80-910b-fb5c1a109585" class="bulleted-list"><li style="list-style-type:disc">디버깅이 어려울 수 있음</li></ul><p id="9afb74ab-d5e9-47e8-bf90-c2437825d4e6" class=""><strong>사용 시기:</strong></p><ul id="7e5451b5-336e-47e5-bd5e-847d51e6fd32" class="bulleted-list"><li style="list-style-type:disc">반복적인 패턴이 많을 때</li></ul><ul id="3ed32be9-0d65-4b41-ae12-0f12966f4354" class="bulleted-list"><li style="list-style-type:disc">설정이나 빌더 패턴이 필요할 때</li></ul><ul id="13e5cbf0-da1d-4d32-b2d1-5200e6c024c4" class="bulleted-list"><li style="list-style-type:disc">도메인 특화 언어가 필요할 때</li></ul><ul id="4da90429-dc21-4bd2-9d02-1b0c87ff39d0" class="bulleted-list"><li style="list-style-type:disc">타입 안전성이 중요할 때</li></ul><p id="7edf29e3-faf3-41ec-8770-cede42bbf6c4" class=""><strong>피해야 할 경우:</strong></p><ul id="05a93546-b898-46ad-be3a-c47586bd7c47" class="bulleted-list"><li style="list-style-type:disc">간단한 작업</li></ul><ul id="0a12fe45-c790-4b2b-9b6d-21655de54c38" class="bulleted-list"><li style="list-style-type:disc">일회성 코드</li></ul><ul id="332afb99-92d8-4cb1-914e-1117a81d715a" class="bulleted-list"><li style="list-style-type:disc">성능이 매우 중요한 경우</li></ul><p id="41c80e44-6f4b-4a7b-ac2d-1969fd1d1456" class="">코틀린 DSL은 올바르게 사용하면 코드의 표현력과 유지보수성을 크게 향상시킬 수 있는 강력한 도구입니다. 프로젝트의 요구사항과 팀의 숙련도를 고려하여 적절히 활용하시기 바랍니다.</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>
