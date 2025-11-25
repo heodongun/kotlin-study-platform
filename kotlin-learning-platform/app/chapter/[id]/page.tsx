@@ -3,6 +3,8 @@ import { ParsedContent } from '@/types';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+export const runtime = 'edge';
+
 export default async function ChapterPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const { chapters } = lessonsData as ParsedContent;

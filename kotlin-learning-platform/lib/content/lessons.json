@@ -16,14 +16,8 @@
           "title": "Kotlin 코루틴 심화 가이드",
           "content": "이 문서는 Coding Platform 프로젝트에서 사용되는 Kotlin 코루틴의 고급 개념과 실전 패턴을 다룹니다.목차코루틴 기본 개념Dispatchers 상세구조화된 동시성코루틴 스코프에러 처리실전 패턴1. 코루틴 기본 개념1.1 코루틴이란?코루틴(Coroutine)은 일시 중단 가능한 계산입니다.스레드보다 훨씬 가볍습니다 (수천 개 동시 실행 가능)메모리 오버헤드가 적습니다컨텍스트 스위칭 비용이 거의 없습니다1.2 suspend 함수의 동작 원리내부 동작:delay(1000) 호출 시 코루틴이 일시 중단됩니다스레드는 다른 작업을 수행할 수 있습니다1초 후 코루틴이 재개됩니다나머지 코드가 실행됩니다vs Thread.sleep():1.3 코루틴 빌더launch: 결과를 반환하지 않는 코루틴 시작async: 결과를 반환하는 코루틴 시작runBlocking: 코루틴을 블로킹 방식으로 실행2. Dispatchers 상세2.1 Dispatcher 종류와 사용 시나리오Dispatchers.DefaultCPU 집약적 작업에 사용스레드 풀 크기: CPU 코어 수예: 정렬, 계산, 데이터 변환Dispatchers.IOI/O 작업에 사용스레드 풀 크기: 64개 (또는 코어 수 중 큰 값)예: 파일 읽기/쓰기, 네트워크 요청, DB 쿼리프로젝트 예시: DatabaseFactory.ktDispatchers.MainUI 스레드 (Android/Desktop)백엔드에서는 사용하지 않음Dispatchers.Unconfined특정 스레드에 제한되지 않음일반적으로 사용하지 않음 (디버깅 용도)2.2 Dispatcher 전환2.3 프로젝트 실전 예시DockerExecutorService.kt:3. 구조화된 동시성3.1 개념구조화된 동시성(Structured Concurrency)은 코루틴의 생명주기를 명확하게 관리하는 원칙입니다.핵심 원칙:부모 코루틴이 취소되면 자식 코루틴도 취소됩니다부모 코루틴은 모든 자식 코루틴이 완료될 때까지 대기합니다자식 코루틴에서 예외가 발생하면 부모에게 전파됩니다3.2 coroutineScope특징:모든 자식 코루틴이 완료될 때까지 함수가 반환되지 않습니다하나의 자식 코루틴이 실패하면 다른 모든 자식도 취소됩니다3.3 supervisorScope특징:하나의 자식 코루틴이 실패해도 다른 자식은 계속 실행됩니다독립적인 작업을 병렬로 실행할 때 유용합니다3.4 실전 예시: 여러 제출 동시 평가4. 코루틴 스코프4.1 GlobalScope (사용 지양)4.2 CoroutineScope 생성4.3 프로젝트 예시: SubmissionService5. 에러 처리5.1 try-catch5.2 CoroutineExceptionHandler5.3 SupervisorJob으로 격리5.4 실전 예시: 제출 평가 에러 처리6. 실전 패턴6.1 타임아웃 설정프로젝트 예시: Docker 컨테이너 실행6.2 재시도 패턴6.3 병렬 처리 패턴모든 작업 완료 대기:첫 번째 완료된 작업 사용:배치 처리:6.4 캐싱 패턴6.5 Rate Limiting 패턴6.6 Flow - 비동기 스트림Flow는 여러 값을 비동기로 반환하는 코루틴 기반 스트림입니다.기본 사용:Flow 연산자:실전 예시: 실시간 제출 모니터링:StateFlow와 SharedFlow:7. 성능 최적화7.1 불필요한 Dispatcher 전환 피하기7.2 코루틴 재사용7.3 병렬 처리 최적화7.4 메모리 효율적인 Flow 사용8. 디버깅 팁8.1 코루틴 이름 지정8.2 로깅8.3 코루틴 덤프9. 자주 하는 실수9.1 GlobalScope 사용9.2 블로킹 호출9.3 예외 무시9.4 Dispatcher 잘못 선택10. 요약핵심 원칙suspend 함수로 비동기 작업을 동기 코드처럼 작성적절한 Dispatcher 선택 (IO vs Default)구조화된 동시성으로 생명주기 관리에러 처리를 명확하게GlobalScope 사용 지양, 명시적인 CoroutineScope 사용프로젝트에서 배울 수 있는 패턴DatabaseFactory.dbQuery: Dispatcher 전환DockerExecutorService: IO 작업 처리SubmissionService: 백그라운드 작업 실행ServiceRegistry: 리소스 생명주기 관리추가 학습 자료Kotlin Coroutines 공식 가이드Coroutines Best PracticesFlow 공식 문서이 가이드를 통해 Kotlin 코루틴의 고급 개념을 이해하고,실전 프로젝트에서 효과적으로 활용할 수 있기를 바랍니다!",
           "codeExample": "suspend fun fetchUser(id: String): User {\n    delay(1000)  // 1초 대기 (스레드 블로킹 없음!)\n    return User(id, \"홍길동\")\n}",
-          "initialCode": "// suspend 함수를 작성해보세요\n// fetchUser 함수를 만들고, delay(1000)을 사용하세요\n\n",
-          "order": 1,
-          "validation": {
-            "type": "contains",
-            "pattern": "suspend fun fetchUser",
-            "message": "정답입니다! suspend 함수를 올바르게 작성했습니다. 🎉"
-          },
-          "hint": "suspend 키워드를 함수 앞에 붙이고, delay() 함수를 사용해보세요."
+          "initialCode": "// Write your code here\n",
+          "order": 1
         },
         {
           "id": "목차-2",
@@ -58,14 +52,8 @@
           "title": "1.3 코루틴 빌더",
           "content": "launch: 결과를 반환하지 않는 코루틴 시작async: 결과를 반환하는 코루틴 시작runBlocking: 코루틴을 블로킹 방식으로 실행",
           "codeExample": "GlobalScope.launch {\n    println(\"코루틴 시작\")\n    delay(1000)\n    println(\"1초 후\")\n}",
-          "initialCode": "// GlobalScope.launch를 사용하여 코루틴을 시작해보세요\n// \"코루틴 시작\"을 출력하세요\n\n",
-          "order": 6,
-          "validation": {
-            "type": "contains",
-            "pattern": "GlobalScope.launch",
-            "message": "정답입니다! 코루틴을 성공적으로 시작했습니다. 🎉"
-          },
-          "hint": "GlobalScope.launch { } 블록 안에 코드를 작성하세요."
+          "initialCode": "// Write your code here\n",
+          "order": 6
         },
         {
           "id": "2-dispatchers-상세-7",

@@ -29,7 +29,7 @@ export class ContentParser {
    */
   private findHtmlFiles(dir: string): string[] {
     const files: string[] = [];
-    
+
     if (!fs.existsSync(dir)) {
       return files;
     }
@@ -38,7 +38,7 @@ export class ContentParser {
 
     for (const entry of entries) {
       const fullPath = path.join(dir, entry.name);
-      
+
       if (entry.isDirectory()) {
         files.push(...this.findHtmlFiles(fullPath));
       } else if (entry.isFile() && entry.name.endsWith('.html')) {
@@ -58,20 +58,20 @@ export class ContentParser {
     const $ = cheerio.load(html);
 
     // Extract title from page-title or first h1
-    const title = $('.page-title').first().text().trim() || 
-                  $('h1').first().text().trim() || 
-                  fileName;
+    const title = $('.page-title').first().text().trim() ||
+      $('h1').first().text().trim() ||
+      fileName;
 
     // Extract description from page-description or first paragraph
-    const description = $('.page-description').first().text().trim() || 
-                       $('p').first().text().trim() || 
-                       '';
+    const description = $('.page-description').first().text().trim() ||
+      $('p').first().text().trim() ||
+      '';
 
     // Extract sections
     const sections = this.extractSections(html);
 
     // Convert sections to lessons
-    const lessons = sections.map((section, index) => 
+    const lessons = sections.map((section, index) =>
       this.convertToLesson(section, index)
     );
 
@@ -95,15 +95,16 @@ export class ContentParser {
     $('h1, h2, h3').each((_, element) => {
       const $heading = $(element);
       const heading = $heading.text().trim();
-      const level = parseInt(element.tagName.substring(1));
+      const tagName = $heading.prop('tagName')?.toLowerCase() || '';
+      const level = parseInt(tagName.substring(1));
 
       // Get content until next heading of same or higher level
       let content = '';
       let $current = $heading.next();
-      
+
       while ($current.length > 0) {
         const tagName = $current.prop('tagName')?.toLowerCase();
-        
+
         // Stop if we hit another heading of same or higher level
         if (tagName && ['h1', 'h2', 'h3'].includes(tagName)) {
           const currentLevel = parseInt(tagName.substring(1));
@@ -140,7 +141,7 @@ export class ContentParser {
     $('pre code, .code code').each((_, element) => {
       const $code = $(element);
       const code = $code.text().trim();
-      
+
       // Try to detect language from class
       const className = $code.attr('class') || '';
       const languageMatch = className.match(/language-(\w+)/);
@@ -160,15 +161,15 @@ export class ContentParser {
   convertToLesson(section: Section, order: number): Lesson {
     // Clean HTML content for display
     const $ = cheerio.load(section.content);
-    
+
     // Remove code blocks from content (they'll be shown separately)
     $('pre, .code').remove();
-    
-    const cleanContent = $.text().trim();
+
+    const cleanContent = $.root().text().trim();
 
     // Use first code block as example if available
-    const codeExample = section.codeBlocks.length > 0 
-      ? section.codeBlocks[0].code 
+    const codeExample = section.codeBlocks.length > 0
+      ? section.codeBlocks[0].code
       : undefined;
 
     return {
@@ -199,7 +200,7 @@ export class ContentParser {
       .toLowerCase()
       .replace(/[^a-z0-9가-힣]+/g, '-')
       .replace(/^-|-$/g, '');
-    
+
     return `${slug}-${order}`;
   }
 }

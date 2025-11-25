@@ -1,5 +1,5 @@
 // Lesson validation types
-export type ValidationType = 'contains' | 'exact' | 'regex';
+export type ValidationType = 'contains' | 'exact' | 'regex' | 'notContains';
 
 export interface ValidationRule {
   type: ValidationType;
