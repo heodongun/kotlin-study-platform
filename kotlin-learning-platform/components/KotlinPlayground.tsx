@@ -8,32 +8,75 @@ interface KotlinPlaygroundProps {
   onSuccess?: () => void;
 }
 
+declare global {
+  interface Window {
+    KotlinPlayground: any;
+  }
+}
+
 export default function KotlinPlayground({ lesson, onSuccess }: KotlinPlaygroundProps) {
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [userCode, setUserCode] = useState(lesson.initialCode || '// 여기에 코드를 작성하세요\n');
+  const codeRef = useRef<HTMLDivElement>(null);
+  const [userCode, setUserCode] = useState(lesson.initialCode || '');
   const [isChecking, setIsChecking] = useState(false);
+  const [playgroundInstance, setPlaygroundInstance] = useState<any>(null);
   const [result, setResult] = useState<{
     success: boolean;
     message: string;
   } | null>(null);
 
+  // Load Kotlin Playground Script
   useEffect(() => {
-    // Kotlin Playground 스크립트 로드
-    const script = document.createElement('script');
-    script.src = 'https://unpkg.com/kotlin-playground@1';
-    script.async = true;
-    document.body.appendChild(script);
+    if (!window.KotlinPlayground) {
+      const script = document.createElement('script');
+      script.src = 'https://unpkg.com/kotlin-playground@1';
+      script.async = true;
+      script.onload = () => initPlayground();
+      document.body.appendChild(script);
+    } else {
+      initPlayground();
+    }
 
     return () => {
-      document.body.removeChild(script);
+      // Cleanup if necessary
     };
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lesson.id]); // Re-init when lesson changes
+
+  const initPlayground = () => {
+    if (codeRef.current && window.KotlinPlayground) {
+      // Clear previous instance content if needed, but usually replacing the target div works.
+      // However, React might have re-rendered.
+      // We need to ensure the div contains the initial code before initializing.
+      codeRef.current.innerHTML = ""; // Clear
+      
+      // Create a code element
+      const codeElement = document.createElement('code');
+      codeElement.className = 'kotlin-code';
+      // Use lesson.initialCode. If it has // sampleStart, the playground handles it.
+      codeElement.textContent = lesson.initialCode || '// 코드를 작성하세요';
+      // Add attributes for customization if needed
+      codeElement.setAttribute('theme', 'darcula');
+      codeElement.setAttribute('data-target-platform', 'java'); // or junit
+      
+      codeRef.current.appendChild(codeElement);
+
+      window.KotlinPlayground(codeElement, {
+        onChange: (code: string) => {
+          setUserCode(code);
+        },
+        onTestPassed: () => {
+            // Optional: Auto-success on test pass?
+        }
+      }).then((instances: any[]) => {
+        setPlaygroundInstance(instances[0]);
+      });
+    }
+  };
 
   const checkAnswer = () => {
     setIsChecking(true);
     setResult(null);
 
-    // 간단한 검증: 사용자 코드와 정답 코드 비교
     if (!lesson.validation) {
       setResult({
         success: true,
@@ -45,18 +88,21 @@ export default function KotlinPlayground({ lesson, onSuccess }: KotlinPlayground
 
     const { type, pattern, message } = lesson.validation;
     let success = false;
-
+    
+    // Additional validation types
+    // We can support an array of validations in the future, but for now single check.
+    
     switch (type) {
       case 'contains':
-        // 특정 코드가 포함되어 있는지 확인
         success = userCode.includes(pattern);
         break;
+      case 'notContains':
+        success = !userCode.includes(pattern);
+        break;
       case 'exact':
-        // 정확히 일치하는지 확인 (공백 제거 후)
         success = userCode.trim() === pattern.trim();
         break;
       case 'regex':
-        // 정규식 패턴 매칭
         const regex = new RegExp(pattern);
         success = regex.test(userCode);
         break;
@@ -79,20 +125,19 @@ export default function KotlinPlayground({ lesson, onSuccess }: KotlinPlayground
   };
 
   const resetCode = () => {
-    setUserCode(lesson.initialCode || '// 여기에 코드를 작성하세요\n');
+    // To reset, we might need to re-initialize or use the playground API if available.
+    // Simple way: Update state and re-init.
+    setUserCode(lesson.initialCode || '');
     setResult(null);
+    initPlayground();
   };
 
   return (
     <div className="flex flex-col h-full">
-      {/* Code Editor */}
-      <div className="flex-1 mb-4">
-        <textarea
-          value={userCode}
-          onChange={(e) => setUserCode(e.target.value)}
-          className="w-full h-full min-h-[400px] bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-          spellCheck={false}
-        />
+      {/* Playground Container */}
+      <div className="flex-1 mb-4 relative min-h-[400px]">
+        {/* We use a ref to mount the playground */}
+        <div ref={codeRef} className="w-full h-full" />
       </div>
 
       {/* Action Buttons */}
@@ -166,15 +211,6 @@ export default function KotlinPlayground({ lesson, onSuccess }: KotlinPlayground
           </div>
         </div>
       )}
-
-      {/* Kotlin Playground (hidden, for future use) */}
-      <div className="hidden">
-        <iframe
-          ref={iframeRef}
-          title="Kotlin Playground"
-          className="w-full h-96 border-0"
-        />
-      </div>
     </div>
   );
 }

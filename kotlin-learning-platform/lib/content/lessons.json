@@ -1,554 +1,370 @@
 {
   "chapters": [
     {
-      "id": "coroutine-basics",
-      "title": "코루틴 기초",
-      "description": "코루틴의 기본 개념, suspend 함수, 코루틴 빌더를 학습합니다.",
+      "id": "zombie-awakening",
+      "title": "챕터 1: 각성 (코루틴 기초)",
+      "description": "초보 네크로맨서여, 묘지를 얼어붙게 하지 않고 좀비들을 깨우는 법을 배우세요.",
       "lessons": [
         {
-          "id": "코루틴-0",
-          "title": "코루틴이란 무엇일까요?",
-          "content": "코루틴은 비동기 프로그래밍을 더 쉽고 읽기 쉽게 만들어주는 경량 스레드입니다. 이 챕터에서는 코루틴의 기본 개념부터 실전 활용까지 차근차근 알아봅니다.",
+          "id": "zombie-1-launch",
+          "title": "첫 번째 좀비",
+          "content": "스토리: 묘지 서버에 오신 것을 환영합니다. 당신은 네크로맨서(메인 스레드)입니다. 좀비 일꾼을 깨워 물을 길어오게 시키려 합니다. 하지만 직접 다녀오면 그동안 주문을 외울 수 없습니다! 비동기적으로 소환해야 합니다.\n\n개념: `launch`는 코루틴 빌더입니다. 나머지 코드와 동시에 실행되는 새로운 코루틴을 시작합니다. `Job` 객체를 반환합니다.",
+          "codeExample": "import kotlinx.coroutines.*\n\nfun main() = runBlocking {\n    launch {\n        delay(1000L)\n        println(\"좀비: 뇌...!\")\n    }\n    println(\"네크로맨서: 계속 주문을 외운다...\")\n}",
+          "initialCode": "import kotlinx.coroutines.*\n\nfun main() = runBlocking {\n    // sampleStart\n    // TODO: 'launch'를 사용하여 좀비를 깨우세요\n    // launch 블록 안에서 \"좀비: 일어났다!\"를 출력하세요\n    \n    \n    println(\"네크로맨서: 나는 주문 외우느라 바빠.\")\n    // sampleEnd\n}",
+          "validation": {
+            "type": "contains",
+            "pattern": "launch",
+            "message": "훌륭합니다! 주문을 멈추지 않고 좀비를 일으켜 세웠습니다. 🧟‍♂️"
+          },
+          "hint": "좀비의 행동을 `launch { ... }` 블록으로 감싸세요.",
           "order": 0
         },
         {
-          "id": "1-코루틴-기본-개념-3",
-          "title": "코루틴 기본 개념",
-          "content": "코루틴(Coroutine)은 일시 중단 가능한 계산입니다. 스레드보다 훨씬 가볍고 (수천 개 동시 실행 가능), 메모리 오버헤드가 적으며, 컨텍스트 스위칭 비용이 거의 없습니다.",
-          "codeExample": "suspend fun fetchUser(id: String): User {\n    delay(1000)  // 1초 대기 (스레드 블로킹 없음!)\n    return User(id, \"홍길동\")\n}",
-          "initialCode": "// 코드를 여기에 작성하세요\n",
+          "id": "zombie-2-delay",
+          "title": "기다림의 미학",
+          "content": "스토리: 좀비는 느립니다. 땅을 파고 나오는 데 시간이 걸리죠. 만약 `Thread.sleep()`을 쓰면 당신(네크로맨서)도 같이 잠들어버립니다! 좀비가 기다리는 동안 당신은 다른 일을 할 수 있도록 `delay()`를 써야 합니다.\n\n개념: `delay()`는 중단(suspend) 함수입니다. 스레드를 차단하지 않고 코루틴을 일시 중지합니다.",
+          "codeExample": "launch {\n    println(\"좀비: 땅 파는 중...\")\n    delay(1000L) // 이 좀비만 멈추고, 스레드는 멈추지 않음\n    println(\"좀비: 나왔다!\")\n}",
+          "initialCode": "import kotlinx.coroutines.*\n\nfun main() = runBlocking {\n    launch {\n        println(\"좀비: 땅 파기 시작...\")\n        // TODO: Thread.sleep(1000)을 delay(1000)으로 교체하세요\n        Thread.sleep(1000)\n        println(\"좀비: 땅 파기 완료!\")\n    }\n}",
+          "validation": {
+            "type": "contains",
+            "pattern": "delay",
+            "message": "완벽합니다! 좀비는 기다리지만, 당신은 깨어있습니다. 🕰️"
+          },
+          "hint": "`Thread.sleep`을 `delay`로 바꾸세요. `delay`는 중단 함수라는 점을 기억하세요.",
           "order": 1
         },
         {
-          "id": "1-2-suspend-함수의-동작-원리-5",
-          "title": "suspend 함수의 동작 원리",
-          "content": "suspend 함수는 코루틴을 일시 중단할 수 있는 지점(suspension point)을 가집니다. `delay(1000)`가 호출되면 코루틴은 중단되고, 스레드는 다른 작업을 수행할 수 있습니다. 1초 후 코루틴은 원래 중단되었던 지점부터 다시 실행됩니다. 이는 스레드를 차단하는 `Thread.sleep()`과 다릅니다.",
-          "codeExample": "suspend fun fetchUser(id: String): User {\n    delay(1000)  // 1초 대기 (스레드 블로킹 없음!)\n    return User(id, \"홍길동\")\n}",
-          "initialCode": "// 코드를 여기에 작성하세요\n",
-          "order": 2
-        },
-        {
-          "id": "1-3-코루틴-빌더-6",
-          "title": "코루틴 빌더",
-          "content": "`launch`: 결과를 반환하지 않는 코루틴을 시작합니다. 'fire-and-forget' 작업에 사용됩니다.\n`async`: 결과를 반환하는 코루틴을 시작합니다. `Deferred<T>` 객체를 반환하며, `.await()`를 통해 결과를 얻을 수 있습니다.\n`runBlocking`: 현재 스레드를 차단하면서 코루틴을 실행합니다. 주로 테스트나 `main` 함수에서 코루틴 환경을 시작할 때 사용됩니다.",
-          "codeExample": "GlobalScope.launch {\n    println(\"코루틴 시작\")\n    delay(1000)\n    println(\"1초 후\")\n}",
-          "initialCode": "// GlobalScope.launch를 사용하여 코루틴을 시작해보세요\n// \"코루틴 시작\"을 출력하세요\n\n",
-          "order": 3,
+          "id": "zombie-3-suspend",
+          "title": "중단 주문 (Suspend)",
+          "content": "스토리: 좀비에게 `fetchBrains()` 같은 복잡한 작업을 가르치려 합니다. 하지만 이 작업은 시간이 걸립니다. 컴파일러에게 이 작업이 잠시 멈출 수 있음을 알려주려면 `suspend` 키워드를 붙여야 합니다.\n\n개념: `suspend` 함수는 코루틴이나 다른 suspend 함수 내에서만 호출할 수 있습니다. 이는 \"중단 지점\"을 표시합니다.",
+          "codeExample": "suspend fun fetchBrains() {\n    delay(1000L)\n    println(\"뇌 발견!\")\n}",
+          "initialCode": "import kotlinx.coroutines.*\n\nfun main() = runBlocking {\n    launch {\n        findIngredients()\n    }\n}\n\n// TODO: 이 함수에 'suspend' 키워드를 추가하세요\nfun findIngredients() {\n    delay(500L)\n    println(\"도롱뇽 눈알 발견!\")\n}",
           "validation": {
             "type": "contains",
-            "pattern": "GlobalScope.launch",
-            "message": "정답입니다! 코루틴을 성공적으로 시작했습니다. 🎉"
+            "pattern": "suspend fun",
+            "message": "마법이 통했습니다! 이제 이 함수는 중단 가능합니다. 📜"
           },
-          "hint": "GlobalScope.launch { } 블록 안에 코드를 작성하세요."
-        },
-        {
-          "id": "1-suspend는-비용이-0-이-아니다-81",
-          "title": "suspend는 비용이 0이 아니다",
-          "content": "`suspend fun`은 컴파일러가 자동으로 상태 머신(state machine) 코드로 변환합니다. 이 과정에서 현재 상태를 `Continuation` 객체로 저장하고 재개 시 복원하는 오버헤드가 발생합니다. 따라서 아주 짧은 연산(e.g., `x + y`)에 `suspend`를 붙이면 오히려 성능이 저하될 수 있습니다.",
-          "order": 4
-        },
-        {
-          "id": "82-when-to-use-suspend",
-          "title": "언제 suspend를 사용해야 하는가?",
-          "content": "`suspend`는 스레드를 오랫동안 점유하지만 실제 CPU 작업은 거의 없는 I/O 대기(DB 쿼리, 네트워크 요청, 파일 읽기/쓰기 등) 작업에 사용해야 가장 효과적입니다. CPU를 계속 사용하는 계산 작업에는 `suspend`를 붙이는 것이 의미가 없습니다.",
-          "order": 5
+          "hint": "`fun findIngredients()` 앞에 `suspend`를 추가하세요.",
+          "order": 2
         }
       ],
       "order": 0
     },
     {
-      "id": "coroutine-dispatchers",
-      "title": "디스패처와 컨텍스트",
-      "description": "코루틴이 어떤 스레드에서 실행될지 결정하는 디스패처에 대해 학습합니다.",
+      "id": "zombie-horde",
+      "title": "챕터 2: 군단 (Dispatchers)",
+      "description": "적절한 좀비를 적절한 작업에 배치하세요. 정찰병의 일을 덩치에게 시키지 마세요.",
       "lessons": [
         {
-          "id": "2-dispatchers-상세-7",
-          "title": "Dispatchers 상세",
-          "content": "디스패처는 코루틴이 실행될 스레드를 결정합니다. 적절한 디스패처를 선택하는 것은 성능에 매우 중요합니다.",
-          "codeExample": "suspend fun processLargeData(data: List<Int>): List<Int> =\n    withContext(Dispatchers.Default) {\n        data.map { it * 2 }  // CPU 집약적 작업\n            .sorted()\n    }",
-          "initialCode": "// 코드를 여기에 작성하세요\n",
+          "id": "zombie-4-dispatchers",
+          "title": "덩치 vs 정찰병",
+          "content": "스토리: 두 종류의 좀비가 있습니다. 덩치(Brutes, 힘이 세고 계산에 능함)와 정찰병(Scouts, 빠르고 I/O 대기에 능함). Dispatcher를 사용해 올바르게 배치해야 합니다.\n\n개념:\n- `Dispatchers.Default`: CPU 집약적인 작업 (덩치).\n- `Dispatchers.IO`: DB나 네트워크 같은 I/O 작업 (정찰병).",
+          "codeExample": "launch(Dispatchers.Default) { \n    // 무거운 계산\n}\nlaunch(Dispatchers.IO) {\n    // 네트워크 요청\n}",
+          "initialCode": "import kotlinx.coroutines.*\n\nfun main() = runBlocking {\n    // TODO: 이 무거운 계산에는 Dispatchers.Default를 사용하세요\n    launch(Dispatchers.Unconfined) {\n        println(\"좀비 궤적 계산 중...\")\n    }\n    \n    // TODO: 이 데이터베이스 접근에는 Dispatchers.IO를 사용하세요\n    launch(Dispatchers.Unconfined) {\n        println(\"무덤 기록 읽는 중...\")\n    }\n}",
+          "validation": {
+            "type": "contains",
+            "pattern": "Dispatchers.Default",
+            "message": "좋은 전략입니다! 덩치들이 무거운 짐을 처리합니다. 💪"
+          },
+          "hint": "`Dispatchers.Unconfined`를 각각 `Dispatchers.Default`와 `Dispatchers.IO`로 바꾸세요.",
           "order": 0
         },
         {
-          "id": "2-1-dispatcher-종류와-사용-시나리오-8",
-          "title": "Dispatcher 종류와 사용 시나리오",
-          "content": "`Dispatchers.Default`: CPU 집약적인 작업에 사용됩니다. (예: 정렬, 계산)\n`Dispatchers.IO`: 파일 읽기/쓰기, 네트워크 요청, DB 쿼리 등 I/O 작업에 사용됩니다.\n`Dispatchers.Main`: UI 스레드에서 실행됩니다. (Android/Desktop UI 작업)\n`Dispatchers.Unconfined`: 특정 스레드에 국한되지 않습니다. 예측이 어려워 일반적으로 사용하지 않습니다.",
-          "codeExample": "suspend fun processLargeData(data: List<Int>): List<Int> =\n    withContext(Dispatchers.Default) {\n        data.map { it * 2 }  // CPU 집약적 작업\n            .sorted()\n    }",
-          "initialCode": "// 코드를 여기에 작성하세요\n",
+          "id": "zombie-5-withcontext",
+          "title": "변신 (Context Switching)",
+          "content": "스토리: 때로는 좀비가 땅을 파고(IO), 흙을 날라야(Default) 합니다. 작업 도중에 태세를 전환해야 하죠!\n\n개념: `withContext`는 코드 블록의 Dispatcher를 전환하고, 완료되면 원래 Dispatcher로 돌아옵니다.",
+          "codeExample": "suspend fun digAndCarry() {\n    withContext(Dispatchers.IO) {\n        // 땅 파기 (IO)\n    }\n    withContext(Dispatchers.Default) {\n        // 흙 나르기 (CPU)\n    }\n}",
+          "initialCode": "import kotlinx.coroutines.*\n\nsuspend fun lootGrave() {\n    // 여기는 메인 스레드입니다\n    \n    // TODO: 관을 열기 위해 IO 컨텍스트로 전환하세요\n    withContext(Dispatchers.Main) {\n        println(\"관 여는 중...\")\n    }\n}",
+          "validation": {
+            "type": "contains",
+            "pattern": "Dispatchers.IO",
+            "message": "부드러운 전환! 좀비가 작업에 적응했습니다. 🔄"
+          },
+          "hint": "`withContext` 내부의 `Dispatchers.Main`을 `Dispatchers.IO`로 바꾸세요.",
           "order": 1
-        },
-        {
-          "id": "2-2-dispatcher-전환-9",
-          "title": "Dispatcher 전환",
-          "content": "`withContext`를 사용하면 코루틴의 실행 컨텍스트(디스패처)를 안전하게 전환할 수 있습니다. 작업의 성격에 맞는 디스패처로 전환하여 효율성을 높일 수 있습니다.",
-          "codeExample": "suspend fun complexOperation() {\n    println(\"Start Thread: ${Thread.currentThread().name}\")\n\n    withContext(Dispatchers.IO) {\n        println(\"IO Thread: ${Thread.currentThread().name}\")\n        // 파일 읽기\n    }\n\n    withContext(Dispatchers.Default) {\n        println(\"Default Thread: ${Thread.currentThread().name}\")\n        // 데이터 처리\n    }\n\n    println(\"End Thread: ${Thread.currentThread().name}\")\n}",
-          "initialCode": "// 코드를 여기에 작성하세요\n",
-          "order": 2
         }
       ],
       "order": 1
     },
     {
-      "id": "coroutine-structured-concurrency",
-      "title": "구조화된 동시성",
-      "description": "코루틴의 생명주기를 관리하는 구조화된 동시성에 대해 학습합니다.",
+      "id": "zombie-ritual",
+      "title": "챕터 3: 의식 (구조적 동시성)",
+      "description": "여러 좀비가 협력해야 하는 복잡한 의식을 수행하세요.",
       "lessons": [
         {
-          "id": "3-구조화된-동시성-11",
-          "title": "구조화된 동시성 개념",
-          "content": "구조화된 동시성(Structured Concurrency)은 코루틴의 생명주기를 명확하게 관리하는 원칙입니다. 부모 코루틴이 취소되면 모든 자식 코루틴도 취소되며, 부모는 모든 자식이 완료될 때까지 기다립니다. 이를 통해 리소스 누수를 방지하고 코드를 더 안전하게 만듭니다.",
-          "codeExample": "suspend fun fetchUserData(userId: String): UserData = coroutineScope {\n    val userDeferred = async { fetchUser(userId) }\n    val ordersDeferred = async { fetchOrders(userId) }\n\n    UserData(\n        user = userDeferred.await(),\n        orders = ordersDeferred.await()\n    )\n}",
-          "initialCode": "// 코드를 여기에 작성하세요\n",
+          "id": "zombie-6-async",
+          "title": "재료 모으기",
+          "content": "스토리: 대규모 의식을 위해 해골과 뼈가 필요합니다. 좀비 두 마리를 보내 하나씩 가져오게 하는 것보다 동시에(concurrently) 가져오게 하는 게 빠릅니다.\n\n개념: `async`는 결과를 반환(`Deferred`)하는 코루틴을 시작합니다. `.await()`를 사용해 결과를 얻으세요.",
+          "codeExample": "val skull = async { fetchSkull() }\nval bone = async { fetchBone() }\nritual(skull.await(), bone.await())",
+          "initialCode": "import kotlinx.coroutines.*\n\nfun main() = runBlocking {\n    // TODO: launch를 async로 바꿔서 값을 반환하게 하세요\n    val skullDeferred = launch {\n        delay(1000)\n        \"해골\"\n    }\n    \n    val boneDeferred = async {\n        delay(1000)\n        \"뼈\"\n    }\n    \n    // println(\"의식 재료: ${skullDeferred.await()} 와 ${boneDeferred.await()}\")\n}",
+          "validation": {
+            "type": "contains",
+            "pattern": "async",
+            "message": "효율적입니다! 두 재료를 절반의 시간 만에 모았습니다. ⚡"
+          },
+          "hint": "첫 번째 `launch`를 `async`로 바꾸세요. `launch`는 Job을 반환하고, `async`는 Deferred(결과 포함)를 반환합니다.",
           "order": 0
         },
         {
-          "id": "3-2-coroutinescope-13",
-          "title": "coroutineScope",
-          "content": "`coroutineScope` 블록은 모든 자식 코루틴이 완료될 때까지 반환되지 않습니다. 또한, 하나의 자식 코루틴이 실패하면 다른 모든 자식 코루틴도 함께 취소됩니다. 여러 작업이 모두 성공해야 할 때 유용합니다.",
-          "codeExample": "suspend fun fetchUserData(userId: String): UserData = coroutineScope {\n    val userDeferred = async { fetchUser(userId) }\n    val ordersDeferred = async { fetchOrders(userId) }\n\n    UserData(\n        user = userDeferred.await(),\n        orders = ordersDeferred.await()\n    )\n}",
-          "initialCode": "// 코드를 여기에 작성하세요\n",
+          "id": "zombie-7-scope",
+          "title": "마법의 원 (Scope)",
+          "content": "스토리: 좀비 하나라도 재료를 못 찾으면 의식은 망칩니다. 그럴 땐 에너지를 아끼기 위해 다른 좀비도 즉시 소환 해제해야 합니다.\n\n개념: `coroutineScope`는 범위를 생성합니다. 자식 중 하나라도 실패하면 전체 스코프가 실패(모든 자식 취소)합니다. 이것이 구조적 동시성입니다.",
+          "codeExample": "suspend fun performRitual() = coroutineScope {\n    val task1 = async { ... }\n    val task2 = async { ... }\n    // task1이 실패하면 task2도 취소됨\n}",
+          "initialCode": "import kotlinx.coroutines.*\n\nsuspend fun teamHunt() {\n    // TODO: 아래 코드들을 coroutineScope { ... } 블록으로 감싸세요\n    \n        val z1 = async { huntHuman() }\n        val z2 = async { huntAnimal() }\n        z1.await()\n        z2.await()\n    \n}",
+          "validation": {
+            "type": "contains",
+            "pattern": "coroutineScope",
+            "message": "안전합니다! 마법의 원이 그들을 하나로 묶었습니다. ⭕"
+          },
+          "hint": "`async` 호출들을 `coroutineScope { ... }` 안으로 넣으세요.",
           "order": 1
-        },
-        {
-          "id": "3-3-supervisorscope-14",
-          "title": "supervisorScope",
-          "content": "`supervisorScope`는 `coroutineScope`와 달리 하나의 자식 코루틴이 실패해도 다른 자식 코루틴에 영향을 주지 않습니다. 독립적인 여러 작업을 병렬로 실행하고, 일부가 실패하더라도 나머지는 계속 실행되어야 할 때 사용합니다.",
-          "codeExample": "suspend fun fetchDataWithFallback(userId: String): UserData = supervisorScope {\n    val userDeferred = async { fetchUser(userId) }\n    val ordersDeferred = async {\n        try {\n            fetchOrders(userId)\n        } catch (e: Exception) {\n            emptyList()  // 실패 시 빈 리스트 반환\n        }\n    }\n\n    UserData(\n        user = userDeferred.await(),\n        orders = ordersDeferred.await()\n    )\n}",
-          "initialCode": "// 코드를 여기에 작성하세요\n",
-          "order": 2
         }
       ],
       "order": 2
     },
     {
-      "id": "coroutine-scope",
-      "title": "코루틴 스코프",
-      "description": "코루틴의 생명주기를 제어하는 코루틴 스코프에 대해 학습합니다.",
+      "id": "zombie-dsl",
+      "title": "챕터 4: 주문서 (DSL)",
+      "description": "좀비들을 더 쉽게 부리기 위해 나만의 네크로맨시 언어를 만드세요.",
       "lessons": [
         {
-          "id": "4-코루틴-스코프-16",
-          "title": "코루틴 스코프",
-          "content": "모든 코루틴은 `CoroutineScope` 내에서 실행됩니다. 스코프는 코루틴의 생명주기를 제어하며, 스코프가 취소되면 그 안의 모든 코루틴도 취소됩니다.",
-          "codeExample": "// ❌ 나쁜 예: 생명주기 관리가 안 됨\nGlobalScope.launch {\n    delay(10000)\n    println(\"10초 후\")\n}",
-          "initialCode": "// 코드를 여기에 작성하세요\n",
+          "id": "zombie-8-dsl-intro",
+          "title": "망자의 언어",
+          "content": "스토리: 좀비에게 명령할 때마다 `zombie.name = \"Bob\"; zombie.speed = 10;`... 너무 지루합니다! 주문처럼 만들어봅시다: `zombie { name = \"Bob\" }`.\n\n개념: Kotlin DSL을 사용하면 수신 객체 지정 람다(Lambda with Receiver)를 통해 타입 안전한 빌더를 만들 수 있습니다.",
+          "codeExample": "class Zombie { var name = \"\" }\nfun zombie(init: Zombie.() -> Unit): Zombie {\n    val z = Zombie()\n    z.init()\n    return z\n}\n\nval bob = zombie {\n    name = \"Bob\"\n}",
+          "initialCode": "class Zombie {\n    var name: String = \"\"\n    var speed: Int = 0\n}\n\n// TODO: 'zombie' 함수를 정의하세요\n// 수신 객체 지정 람다를 인자로 받아야 합니다: init: Zombie.() -> Unit\nfun zombie(init:       ): Zombie {\n    val z = Zombie()\n    z.init()\n    return z\n}",
+          "validation": {
+            "type": "contains",
+            "pattern": "Zombie.() -> Unit",
+            "message": "주문이 완성되었습니다! 이제 스타일리시하게 좀비를 소환할 수 있습니다. 📖"
+          },
+          "hint": "`init`의 타입은 `Zombie.() -> Unit`이어야 합니다.",
           "order": 0
         },
         {
-          "id": "4-1-globalscope-사용-지양-17",
-          "title": "GlobalScope (사용 지양)",
-          "content": "`GlobalScope`는 애플리케이션의 전체 생명주기에 종속된 코루틴을 시작합니다. 이는 코루틴이 언제 끝날지 보장할 수 없으므로 메모리 누수의 원인이 될 수 있습니다. 특별한 경우가 아니면 사용을 지양해야 합니다.",
-          "codeExample": "// ❌ 나쁜 예: 생명주기 관리가 안 됨\nGlobalScope.launch {\n    delay(10000)\n    println(\"10초 후\")\n}",
-          "initialCode": "// 코드를 여기에 작성하세요\n",
+          "id": "zombie-9-extension",
+          "title": "어둠의 강화 (Extension)",
+          "content": "스토리: 좀비의 원래 DNA(클래스)를 수정하지 않고 특별한 능력을 부여하고 싶습니다. 확장 함수(Extension Functions)를 사용하세요!\n\n개념: 확장 함수를 사용하면 기존 클래스에 새로운 함수를 추가할 수 있습니다.",
+          "codeExample": "fun Zombie.roar() {\n    println(\"$name says: GRAAAH!\")\n}",
+          "initialCode": "class Zombie(val name: String)\n\n// TODO: Zombie 클래스에 확장 함수 'scream'을 추가하세요\n// \"SCREAM!\"을 출력해야 합니다\nfun \n\nfun main() {\n    val z = Zombie(\"Walker\")\n    z.scream()\n}",
+          "validation": {
+            "type": "contains",
+            "pattern": "Zombie.scream",
+            "message": "크고 선명하군요! 좀비가 비명을 지릅니다. 🗣️"
+          },
+          "hint": "함수를 `fun Zombie.scream() { ... }`와 같이 정의하세요.",
           "order": 1
-        },
-        {
-          "id": "4-2-coroutinescope-생성-18",
-          "title": "CoroutineScope 생성",
-          "content": "명시적인 `CoroutineScope`를 생성하여 코루틴의 생명주기를 직접 관리하는 것이 좋습니다. 일반적으로 클래스나 컴포넌트의 생명주기에 맞춰 스코프를 생성하고, 해당 컴포넌트가 파괴될 때 `scope.cancel()`을 호출하여 모든 코루틴을 정리합니다.",
-          "codeExample": "class MyService {\n    private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())\n\n    fun startBackgroundTask() {\n        scope.launch {\n            // 백그라운드 작업\n        }\n    }\n\n    fun cleanup() {\n        scope.cancel()  // 모든 코루틴 취소\n    }\n}",
-          "initialCode": "// 코드를 여기에 작성하세요\n",
-          "order": 2
-        },
-        {
-          "id": "코틀린의-코루틴-구조-123",
-          "title": "고아 코루틴(Orphan Coroutine)",
-          "content": "부모 스코프와 분리되어 관리되지 않는 코루틴을 '고아 코루틴'이라고 부릅니다. `GlobalScope`를 사용하거나 부모-자식 관계를 무시하면 발생할 수 있으며, 리소스 누수나 예측 불가능한 버그의 원인이 될 수 있습니다. 항상 구조화된 동시성 원칙을 지켜 스코프에 맞춰 코루틴을 생성하고 관리해야 합니다.",
-          "order": 3
         }
       ],
       "order": 3
     },
     {
-      "id": "coroutine-error-handling",
-      "title": "에러 처리",
-      "description": "코루틴에서 발생하는 예외를 처리하는 방법을 학습합니다.",
+      "id": "zombie-containment",
+      "title": "챕터 5: 격리 (에러 처리)",
+      "description": "폭발하는 좀비와 실패한 의식을 안전하게 처리하세요.",
       "lessons": [
         {
-          "id": "5-에러-처리-20",
-          "title": "코루틴 에러 처리",
-          "content": "코루틴에서의 에러 처리는 구조화된 동시성 원칙에 따라 동작합니다. 자식 코루틴에서 발생한 예외는 부모에게 전파됩니다.",
-          "codeExample": "suspend fun fetchUser(id: String): User? {\n    return try {\n        // DB 조회\n    } catch (e: Exception) {\n        null\n    }\n}",
-          "initialCode": "// 코드를 여기에 작성하세요\n",
+          "id": "zombie-10-supervisor",
+          "title": "방어막 (SupervisorScope)",
+          "content": "스토리: 어떤 좀비는 불안정해서 폭발(Exception 발생)합니다. 일반 `coroutineScope`에서는 폭발 한 번에 모두가 죽습니다. `supervisorScope`를 사용해 피해를 격리하세요.\n\n개념: `supervisorScope`는 자식 코루틴이 독립적으로 실패할 수 있게 해줍니다. 부모나 다른 형제에게 전파되지 않습니다.",
+          "codeExample": "supervisorScope {\n    launch { throw Exception(\"Boom!\") } // 얘만 죽음\n    launch { println(\"I am fine\") }     // 얘는 삼\n}",
+          "initialCode": "import kotlinx.coroutines.*\n\nsuspend fun dangerousMission() {\n    // TODO: coroutineScope를 supervisorScope로 바꾸세요\n    coroutineScope {\n        launch {\n            throw RuntimeException(\"좀비 폭발!\")\n        }\n        launch {\n            delay(100)\n            println(\"생존자: 살았다!\")\n        }\n    }\n}",
+          "validation": {
+            "type": "contains",
+            "pattern": "supervisorScope",
+            "message": "방어막 가동! 폭발이 격리되었습니다. 🛡️"
+          },
+          "hint": "`coroutineScope`를 `supervisorScope`로 교체하세요.",
           "order": 0
         },
         {
-          "id": "5-1-try-catch-21",
-          "title": "try-catch 블록",
-          "content": "일반적인 동기 코드와 마찬가지로 `try-catch` 블록을 사용하여 `suspend` 함수 호출을 감싸고 예외를 처리할 수 있습니다. 가장 기본적인 예외 처리 방법입니다.",
-          "codeExample": "suspend fun fetchUser(id: String): User? {\n    return try {\n        // DB 조회\n    } catch (e: Exception) {\n        null\n    }\n}",
-          "initialCode": "// 코드를 여기에 작성하세요\n",
+          "id": "zombie-11-handler",
+          "title": "의무병 (ExceptionHandler)",
+          "content": "스토리: 좀비가 다쳤을 때(예외 발생) 치료해줄 의무병이 필요합니다. `CoroutineExceptionHandler`를 사용해 예외를 우아하게 처리하세요.\n\n개념: `CoroutineExceptionHandler`는 코루틴에서 발생한 잡히지 않은 예외를 처리하는 컨텍스트 요소입니다. 주로 최상위 코루틴(launch)이나 SupervisorJob과 함께 사용됩니다.",
+          "codeExample": "val handler = CoroutineExceptionHandler { _, exception ->\n    println(\"Caught $exception\")\n}\nscope.launch(handler) { throw Exception(\"Ouch\") }",
+          "initialCode": "import kotlinx.coroutines.*\n\nfun main() = runBlocking {\n    // TODO: 예외를 출력하는 핸들러를 만드세요\n    val handler = CoroutineExceptionHandler { _, exception ->\n        println(\"의무병: 치료 중... ${exception.message}\")\n    }\n    \n    val scope = CoroutineScope(Job())\n    \n    // TODO: 핸들러를 launch에 전달하세요\n    val job = scope.launch(       ) {\n        throw RuntimeException(\"팔이 떨어짐!\")\n    }\n    job.join()\n}",
+          "validation": {
+            "type": "contains",
+            "pattern": "launch(handler)",
+            "message": "의무병이 도착했습니다! 부상자가 치료받고 있습니다. 🚑"
+          },
+          "hint": "`launch` 함수의 인자로 `handler`를 전달하세요: `launch(handler)`",
           "order": 1
-        },
-        {
-          "id": "5-2-coroutineexceptionhandler-22",
-          "title": "CoroutineExceptionHandler",
-          "content": "`CoroutineExceptionHandler`를 `CoroutineScope`의 컨텍스트에 추가하여 잡히지 않은 예외를 처리할 수 있습니다. 주로 전역적인 로깅이나 에러 리포팅에 사용됩니다.",
-          "codeExample": "val exceptionHandler = CoroutineExceptionHandler { _, exception ->\n    logger.error(\"코루틴 예외 발생\", exception)\n}\n\nval scope = CoroutineScope(Dispatchers.Default + exceptionHandler)\n\nscope.launch {\n    throw RuntimeException(\"에러!\")\n}",
-          "initialCode": "// 코드를 여기에 작성하세요\n",
-          "order": 2
-        },
-        {
-          "id": "5-3-supervisorjob으로-격리-23",
-          "title": "SupervisorJob으로 격리",
-          "content": "`SupervisorJob`을 사용하면 자식 코루틴의 실패가 다른 형제 코루틴이나 부모에게 전파되는 것을 막을 수 있습니다. `supervisorScope`와 함께 사용하여 독립적인 작업들을 안전하게 처리할 수 있습니다.",
-          "codeExample": "suspend fun processMultipleItems(items: List<String>) = supervisorScope {\n    items.forEach { item ->\n        launch {\n            try {\n                processItem(item)\n            } catch (e: Exception) {\n                // 이 실패는 다른 아이템 처리에 영향을 주지 않음\n            }\n        }\n    }\n}",
-          "initialCode": "// 코드를 여기에 작성하세요\n",
-          "order": 3
         }
       ],
       "order": 4
     },
     {
-      "id": "coroutine-patterns",
-      "title": "실전 패턴",
-      "description": "타임아웃, 재시도, 병렬 처리 등 실전에서 유용한 코루틴 패턴을 학습합니다.",
+      "id": "ktor-features",
+      "title": "심화 연대기: Ktor 웹 프레임워크",
+      "description": "Ktor를 사용하여 좀비 서버를 위한 웹 인터페이스를 구축하는 법을 배우세요.",
       "lessons": [
         {
-          "id": "6-1-타임아웃-설정-26",
-          "title": "타임아웃 설정",
-          "content": "`withTimeout` 또는 `withTimeoutOrNull`을 사용하여 코루틴 작업에 시간 제한을 설정할 수 있습니다. 정해진 시간 내에 작업이 완료되지 않으면 `TimeoutCancellationException`이 발생하거나 `null`이 반환됩니다.",
-          "codeExample": "suspend fun fetchWithTimeout(url: String): String? {\n    return withTimeoutOrNull(5000) {  // 5초 타임아웃\n        // 네트워크 요청\n    }\n}",
-          "initialCode": "// 코드를 여기에 작성하세요\n",
+          "id": "ktor-1-intro",
+          "title": "Ktor와 코루틴",
+          "content": "스토리: 좀비 서버를 웹으로 연결할 시간입니다. Ktor는 코루틴을 기반으로 만들어져서, 수천 명의 네크로맨서가 동시에 접속해도 끄떡없습니다. 각 요청은 코루틴 스코프 내에서 처리됩니다.\n\n개념: Ktor의 라우팅 핸들러는 `CoroutineScope`입니다. `launch`를 사용해 요청 응답과 무관하게 백그라운드 작업을 수행할 수 있지만, 요청이 끝나면 취소될 수 있으니 주의해야 합니다(Structured Concurrency).",
+          "codeExample": "get(\"/summon\") {\n    launch {\n        delay(1000)\n        println(\"백그라운드 작업 완료\")\n    }\n    call.respondText(\"소환 완료\")\n}",
+          "initialCode": "import io.ktor.server.application.*\nimport io.ktor.server.response.*\nimport io.ktor.server.routing.*\nimport kotlinx.coroutines.*\n\nfun Route.zombieRoutes() {\n    get(\"/summon\") {\n        // TODO: launch를 사용해 비동기 로그를 남기세요\n        // \"좀비가 무덤에서 기어나오는 중...\"을 출력하고 500ms 딜레이를 주세요\n        \n            \n            \n        \n        call.respondText(\"좀비 소환됨!\")\n    }\n}",
+          "validation": {
+            "type": "contains",
+            "pattern": "launch",
+            "message": "서버가 응답하면서 백그라운드에서도 좀비들이 움직입니다! 🌐"
+          },
+          "hint": "`launch { ... }` 블록을 사용하세요.",
           "order": 0
         },
         {
-          "id": "6-2-재시도-패턴-27",
-          "title": "재시도 패턴",
-          "content": "일시적인 오류에 대응하기 위해 재시도 로직을 구현할 수 있습니다. `delay`를 사용하여 지수 백오프(exponential backoff)와 같은 전략을 적용하면 시스템 부하를 줄일 수 있습니다.",
-          "codeExample": "suspend fun <T> retry(times: Int = 3, block: suspend () -> T): T {\n    repeat(times - 1) {\n        try {\n            return block()\n        } catch (e: Exception) {\n            // 로깅\n        }\n        delay(1000)\n    }\n    return block() // 마지막 시도\n}",
-          "initialCode": "// 코드를 여기에 작성하세요\n",
+          "id": "ktor-2-plugins",
+          "title": "플러그인 (ContentNegotiation)",
+          "content": "스토리: 좀비들은 JSON 언어만 이해합니다. 우리가 하는 말을 자동으로 JSON으로 번역해주는 통역사(플러그인)를 고용해야 합니다.\n\n개념: `ContentNegotiation` 플러그인을 설치하면 객체를 자동으로 JSON으로 직렬화/역직렬화할 수 있습니다.",
+          "codeExample": "install(ContentNegotiation) {\n    json()\n}",
+          "initialCode": "import io.ktor.server.application.*\nimport io.ktor.server.plugins.contentnegotiation.*\nimport io.ktor.serialization.kotlinx.json.*\n\nfun Application.module() {\n    // TODO: ContentNegotiation 플러그인을 설치하고 json()을 설정하세요\n    install(           ) {\n        \n    }\n}",
+          "validation": {
+            "type": "contains",
+            "pattern": "ContentNegotiation",
+            "message": "통역사가 고용되었습니다! 이제 좀비들과 JSON으로 대화할 수 있습니다. 💬"
+          },
+          "hint": "`install(ContentNegotiation) { json() }`을 작성하세요.",
           "order": 1
         },
         {
-          "id": "6-3-병렬-처리-패턴-28",
-          "title": "병렬 처리 패턴",
-          "content": "`coroutineScope`와 `async`를 함께 사용하면 여러 작업을 병렬로 실행하고 모든 결과가 준비될 때까지 기다릴 수 있습니다. `awaitAll()` 함수를 사용하면 여러 `Deferred` 객체의 결과를 한 번에 받을 수 있습니다.",
-          "codeExample": "suspend fun processAllUsers(userIds: List<String>): List<User> = coroutineScope {\n    userIds.map { id ->\n        async { fetchUser(id) }\n    }.awaitAll()\n}",
-          "initialCode": "// 코드를 여기에 작성하세요\n",
+          "id": "ktor-3-statuspages",
+          "title": "안전망 (StatusPages)",
+          "content": "스토리: 서버 내부에서 좀비가 폭주(예외 발생)하면 클라이언트에게 알 수 없는 에러(500)가 날아갑니다. `StatusPages`를 설치해 예외를 예쁘게 포장해서 알려주세요.\n\n개념: `StatusPages` 플러그인은 애플리케이션에서 발생하는 예외를 잡아 적절한 HTTP 응답으로 변환해줍니다.",
+          "codeExample": "install(StatusPages) {\n    exception<Throwable> { call, cause ->\n        call.respondText(\"500: ${cause.message}\")\n    }\n}",
+          "initialCode": "import io.ktor.server.application.*\nimport io.ktor.server.plugins.statuspages.*\nimport io.ktor.server.response.*\n\nfun Application.module() {\n    // TODO: StatusPages 플러그인을 설치하세요\n    install(StatusPages) {\n        // TODO: exception<Throwable> 블록을 정의하고 \"좀비 폭주!\"라고 응답하세요\n        \n            call.respondText(\"좀비 폭주!\")\n        \n    }\n}",
+          "validation": {
+            "type": "contains",
+            "pattern": "exception<Throwable>",
+            "message": "안전망 설치 완료! 이제 폭주해도 당황하지 않습니다. 🚧"
+          },
+          "hint": "`exception<Throwable> { call, cause -> ... }` 블록을 사용하세요.",
           "order": 2
-        },
-        {
-          "id": "6-4-캐싱-패턴-29",
-          "title": "캐싱 패턴",
-          "content": "자주 요청되는 데이터는 메모리에 캐싱하여 성능을 향상시킬 수 있습니다. `Mutex`를 사용하여 여러 코루틴이 동시에 캐시를 수정하는 것을 방지하고 데이터 일관성을 유지할 수 있습니다.",
-          "codeExample": "class CachedService {\n    private val cache = ConcurrentHashMap<String, Data>()\n    private val mutex = Mutex()\n\n    suspend fun getData(key: String): Data {\n        cache[key]?.let { return it }\n\n        return mutex.withLock {\n            cache[key]?.let { return it }\n            val newData = // DB 또는 네트워크에서 데이터 조회\n            cache[key] = newData\n            newData\n        }\n    }\n}",
-          "initialCode": "// 코드를 여기에 작성하세요\n",
-          "order": 3
-        },
-        {
-          "id": "6-5-rate-limiting-패턴-30",
-          "title": "Rate Limiting 패턴",
-          "content": "외부 API 호출 등에 대해 단위 시간당 요청 횟수를 제한(Rate Limiting)하여 시스템을 보호할 수 있습니다. `Semaphore`나 `delay`를 사용하여 간단한 Rate Limiter를 구현할 수 있습니다.",
-          "codeExample": "class RateLimiter(private val maxRequests: Int, private val timeWindowMs: Long) {\n    private val semaphore = Semaphore(maxRequests)\n\n    suspend fun <T> execute(block: suspend () -> T): T {\n        semaphore.acquire()\n        try {\n            return block()\n        } finally {\n            // 일정 시간 후 release\n            CoroutineScope(Dispatchers.Default).launch {\n                delay(timeWindowMs)\n                semaphore.release()\n            }\n        }\n    }\n}",
-          "initialCode": "// 코드를 여기에 작성하세요\n",
-          "order": 4
         }
       ],
       "order": 5
     },
     {
-      "id": "coroutine-flow",
-      "title": "Flow - 비동기 스트림",
-      "description": "여러 값을 비동기로 반환하는 코루틴 기반 스트림, Flow에 대해 학습합니다.",
+      "id": "zombie-flow",
+      "title": "챕터 6: 영혼의 강 (Flow)",
+      "description": "끊임없이 흐르는 영혼의 스트림을 다루는 법을 배우세요.",
       "lessons": [
         {
-          "id": "6-6-flow-비동기-스트림-31",
-          "title": "Flow - 비동기 스트림",
-          "content": "`Flow`는 여러 값을 순차적으로 비동기적으로 생성(emit)할 수 있는 코루틴 기반의 스트림입니다. 데이터베이스 결과, 실시간 업데이트 등 여러 데이터를 시간에 걸쳐 받아야 할 때 유용합니다.",
-          "codeExample": "fun getNumbers(): Flow<Int> = flow {\n    for (i in 1..5) {\n        delay(100)\n        emit(i)  // 값 방출\n    }\n}\n\nsuspend fun collectNumbers() {\n    getNumbers().collect { value ->\n        println(value)\n    }\n}",
-          "initialCode": "// 코드를 여기에 작성하세요\n",
+          "id": "flow-1-basics",
+          "title": "영혼의 흐름",
+          "content": "스토리: 무덤에서 영혼들이 하나둘씩 빠져나옵니다. 한 번에 하나씩 처리하는 것보다, 흐름(Stream)으로 처리하고 싶습니다. `Flow`를 사용하세요.\n\n개념: `Flow`는 비동기적으로 값을 순차적으로 방출(`emit`)하는 차가운 스트림(Cold Stream)입니다. `collect`를 호출해야만 실행됩니다.",
+          "codeExample": "fun souls(): Flow<String> = flow {\n    emit(\"Soul 1\")\n    delay(100)\n    emit(\"Soul 2\")\n}\n\nsouls().collect { println(it) }",
+          "initialCode": "import kotlinx.coroutines.*\nimport kotlinx.coroutines.flow.*\n\nfun main() = runBlocking {\n    // TODO: flow 빌더를 사용하여 1부터 3까지 숫자를 방출(emit)하세요\n    val soulFlow = flow {\n        for (i in 1..3) {\n            delay(100)\n            // emit을 사용하세요\n            \n        }\n    }\n    \n    // TODO: collect를 사용하여 값을 출력하세요\n    soulFlow.collect {\n        println(\"영혼 $it 수집\")\n    }\n}",
+          "validation": {
+            "type": "contains",
+            "pattern": "emit",
+            "message": "영혼들이 강물처럼 흐릅니다. 🌊"
+          },
+          "hint": "`emit(i)`를 사용하여 값을 방출하세요.",
           "order": 0
         },
         {
-          "id": "핵심-개념-완전-쉽게-198",
-          "title": "Flow와 DB 변경 감지",
-          "content": "`Flow`는 데이터베이스의 변경 사항을 실시간으로 감지하고 UI에 반영하는 데 매우 유용합니다. Room, SQLDelight과 같은 라이브러리는 DB 변경 시 자동으로 새로운 데이터를 `emit`하는 `Flow`를 반환하는 기능을 지원합니다.\n`DB 변경 → Flow.emit() → ViewModel 업데이트 → UI 자동 갱신`",
+          "id": "flow-2-operators",
+          "title": "영혼 정제 (Operators)",
+          "content": "스토리: 모든 영혼이 쓸모있는 건 아닙니다. 사악한 영혼만 걸러내고(filter), 강화(map)해야 합니다.\n\n개념: `map`, `filter` 같은 연산자를 사용하여 Flow의 데이터를 변환할 수 있습니다.",
+          "codeExample": "souls()\n    .filter { it.isEvil }\n    .map { it.power * 2 }\n    .collect { ... }",
+          "initialCode": "import kotlinx.coroutines.*\nimport kotlinx.coroutines.flow.*\n\nfun main() = runBlocking {\n    (1..5).asFlow()\n        // TODO: 짝수만 걸러내세요 (filter)\n        .filter {           }\n        // TODO: 값을 10배로 만드세요 (map)\n        .map {           }\n        .collect { println(it) }\n}",
+          "validation": {
+            "type": "contains",
+            "pattern": "filter",
+            "message": "순수한 어둠의 에너지만 남았습니다. 😈"
+          },
+          "hint": "`.filter { it % 2 == 0 }`와 `.map { it * 10 }`을 사용하세요.",
           "order": 1
-        },
-        {
-          "id": "결론-깨달을-버전-219",
-          "title": "StateFlow vs SharedFlow",
-          "content": "`StateFlow`: 항상 최신 상태 값을 가지고 있는 상태 저장 `Flow`입니다. UI 상태, 로그인 여부 등 '상태'를 표현하는 데 적합합니다. 새로운 구독자는 즉시 최신 값을 받습니다.\n`SharedFlow`: 여러 구독자에게 이벤트를 브로드캐스트하는 `Flow`입니다. Toast, Navigation 이벤트 등 '한 번만 처리해야 하는 이벤트'에 사용됩니다. 새로운 구독자는 구독 이후에 발생하는 이벤트만 받습니다.",
-          "order": 2
-        },
-        {
-          "id": "결론부터-239",
-          "title": "Flow vs Kafka",
-          "content": "`Flow`는 단일 프로세스 내에서 동작하는 비동기 스트림 기술입니다. 반면 `Kafka`는 여러 분산 시스템 간의 데이터 파이프라인 및 영구 저장소 역할을 합니다. `Flow`는 앱 내부의 데이터 흐름을 다루고, `Kafka`는 서버 간의 대규모 이벤트 스트리밍을 다루므로 역할과 규모가 완전히 다릅니다.",
-          "order": 3
         }
       ],
       "order": 6
     },
     {
-      "id": "coroutine-optimization",
-      "title": "성능 최적화 및 디버깅",
-      "description": "코루틴의 성능을 최적화하고 디버깅하는 기법을 학습합니다.",
+      "id": "zombie-antipatterns",
+      "title": "챕터 7: 금지된 주술 (Anti-patterns)",
+      "description": "강력하지만 위험한, 절대 사용해서는 안 될 금지된 주술들을 경계하세요.",
       "lessons": [
         {
-          "id": "7-성능-최적화-32",
-          "title": "성능 최적화",
-          "content": "코루틴 성능을 최적화하기 위해 불필요한 디스패처 전환을 피하고, 코루틴 스코프를 재사용하며, `Flow`를 메모리 효율적으로 사용하는 등의 기법이 있습니다.",
-          "codeExample": "// ❌ 나쁜 예: 불필요한 전환\nsuspend fun processData(data: String): String {\n    return withContext(Dispatchers.IO) {\n        withContext(Dispatchers.Default) {  // 불필요한 전환\n            data.uppercase()\n        }\n    }\n}",
-          "initialCode": "// 코드를 여기에 작성하세요\n",
+          "id": "anti-1-globalscope",
+          "title": "영원한 저주 (GlobalScope)",
+          "content": "스토리: `GlobalScope`는 통제할 수 없는 좀비를 소환합니다. 이들은 앱이 죽을 때까지 사라지지 않고 메모리를 갉아먹습니다. 절대 사용하지 마세요!\n\n개념: `GlobalScope`는 전역 범위에서 코루틴을 실행하며, 생명주기를 관리하기 어렵습니다. 대신 구조적 동시성(`CoroutineScope`, `viewModelScope` 등)을 사용하세요.",
+          "codeExample": "// ❌ 나쁜 예\nGlobalScope.launch { ... }\n\n// ✅ 좋은 예\nval scope = CoroutineScope(Job())\nscope.launch { ... }",
+          "initialCode": "import kotlinx.coroutines.*\n\nfun main() = runBlocking {\n    // TODO: GlobalScope를 사용하지 말고, 아래의 localScope를 사용해 launch 하세요\n    val localScope = CoroutineScope(Dispatchers.Default)\n    \n    // ❌ GlobalScope.launch { println(\"통제 불능!\") }\n    \n    // ✅ 올바른 방법:\n    \n        println(\"안전하게 소환됨\")\n    \n    delay(100)\n}",
+          "validation": {
+            "type": "notContains",
+            "pattern": "GlobalScope",
+            "message": "훌륭합니다! 금지된 힘의 유혹을 뿌리쳤습니다. 🛡️"
+          },
+          "hint": "`localScope.launch { ... }`를 사용하세요.",
           "order": 0
         },
         {
-          "id": "8-디버깅-팁-37",
-          "title": "디버깅 팁",
-          "content": "코루틴 디버깅을 위해 `CoroutineName`을 지정하여 로그를 명확하게 하거나, `-Dkotlinx.coroutines.debug` JVM 옵션을 사용하여 코루틴의 상태를 추적할 수 있습니다. IntelliJ/Android Studio의 코루틴 디버거를 활용하면 현재 실행 중인 코루틴과 그 상태를 시각적으로 확인할 수 있습니다.",
-          "codeExample": "val scope = CoroutineScope(\n    Dispatchers.Default +\n    CoroutineName(\"MyCoroutineScope\")\n)\n\nscope.launch(CoroutineName(\"MyTask\")) {\n    // 로그에서 코루틴 이름 확인 가능\n}",
-          "initialCode": "// 코드를 여기에 작성하세요\n",
+          "id": "anti-2-runblocking",
+          "title": "시간의 동결 (runBlocking)",
+          "content": "스토리: `runBlocking`은 세상(스레드)을 멈춥니다. 테스트나 메인 함수가 아니면 절대 사용하지 마세요. 서버가 멈출 수 있습니다!\n\n개념: `runBlocking`은 코루틴이 완료될 때까지 현재 스레드를 차단(Block)합니다. 코루틴 내부에서 사용하면 데드락이 발생할 수 있습니다.",
+          "codeExample": "// ❌ 코루틴 안에서 사용 금지\nlaunch {\n    runBlocking { ... } // 스레드 차단됨!\n}",
+          "initialCode": "import kotlinx.coroutines.*\n\nfun main() = runBlocking {\n    launch {\n        // TODO: runBlocking 대신 coroutineScope를 사용하거나 그냥 suspend 함수를 호출하세요\n        // ❌ runBlocking { delay(1000) }\n        \n        delay(1000)\n        println(\"세상이 멈추지 않았어!\")\n    }\n}",
+          "validation": {
+            "type": "notContains",
+            "pattern": "runBlocking",
+            "message": "시간은 계속 흐릅니다. 서버는 안전합니다. ⏳"
+          },
+          "hint": "`runBlocking`을 지우고 `delay(1000)`만 남기세요.",
           "order": 1
         }
       ],
       "order": 7
     },
     {
-      "id": "coroutine-comparison",
-      "title": "주요 개념 비교",
-      "description": "코루틴의 주요 개념들을 비교하며 더 깊이 이해합니다.",
+      "id": "kotlin-core-features",
+      "title": "심화 연대기: 코틀린 코어",
+      "description": "더 강력하고 깔끔한 주문을 위해 코틀린의 핵심 기능을 마스터하세요.",
       "lessons": [
         {
-          "id": "1-launch나-async는-스코프-안에서만-쓸-수-있다-50",
-          "title": "runBlocking의 역할",
-          "content": "`launch`나 `async`는 `CoroutineScope`의 확장 함수이므로 스코프 안에서만 사용할 수 있습니다. `runBlocking`은 일반 함수(e.g. `main`)에서 코루틴 세계로 들어가는 '문'의 역할을 합니다. `runBlocking`은 내부적으로 코루틴 스코프를 만들고, 모든 자식 코루틴이 끝날 때까지 현재 스레드를 차단합니다.",
-          "codeExample": "public fun CoroutineScope.launch(...): Job",
-          "initialCode": "// 코드를 여기에 작성하세요\n",
+          "id": "core-1-dataclass",
+          "title": "데이터 클래스 (Data Class)",
+          "content": "스토리: 좀비의 스탯(이름, 체력)을 일일이 관리하기 힘듭니다. `data class`를 사용해 효율적인 좀비 명부를 만드세요.\n\n개념: `data class`는 `toString()`, `equals()`, `hashCode()`, `copy()` 메서드를 자동으로 생성해줍니다. 보일러플레이트 코드를 획기적으로 줄여줍니다.",
+          "codeExample": "data class Zombie(val name: String, val hp: Int)\nval z1 = Zombie(\"Bob\", 100)\nval z2 = z1.copy(name = \"Alice\")",
+          "initialCode": "// TODO: 'name'(String)과 'hp'(Int)를 가진 Zombie 데이터 클래스를 정의하세요\n\n\nfun main() {\n    val z1 = Zombie(\"Walker\", 100)\n    // TODO: copy()를 사용해 hp가 200인 'tank' 좀비를 만드세요\n    val tank = \n    println(tank)\n}",
+          "validation": {
+            "type": "contains",
+            "pattern": "data class",
+            "message": "명부가 정리되었습니다! 복제 좀비도 쉽게 만들 수 있겠군요. 📋"
+          },
+          "hint": "`data class Zombie(...)`로 정의하고 `z1.copy(hp = 200)`을 사용하세요.",
           "order": 0
         },
         {
-          "id": "1-공통점-55",
-          "title": "runBlocking vs CoroutineScope",
-          "content": "`runBlocking`은 현재 스레드를 차단(block)하고 내부 코루틴이 모두 끝날 때까지 대기하는 반면, `CoroutineScope(...)`는 스레드를 차단하지 않고 비동기적인 코루틴 환경을 생성합니다. 따라서 `runBlocking`은 `main` 함수나 테스트 코드의 진입점에서만 사용하고, 실제 애플리케이션 로직(서버, UI 등)에서는 `CoroutineScope`를 사용해야 합니다.",
+          "id": "core-2-scope-functions",
+          "title": "스코프 함수 (Scope Functions)",
+          "content": "스토리: 좀비를 생성하고, 이름을 짓고, 무기를 쥐어주는 과정을 한 번에 처리하고 싶습니다. `apply` 주문을 사용하세요.\n\n개념: `apply`는 객체를 초기화할 때 유용하며, 객체 자신(`this`)을 반환합니다. `let`은 null이 아닐 때 코드를 실행(`?.let`)하는 데 자주 쓰입니다.",
+          "codeExample": "val z = Zombie().apply {\n    name = \"Runner\"\n    speed = 20\n}",
+          "initialCode": "class Zombie {\n    var name: String = \"\"\n    var hp: Int = 0\n}\n\nfun main() {\n    // TODO: apply를 사용하여 이름은 \"Boss\", hp는 500으로 설정하세요\n    val boss = Zombie().apply {\n        \n        \n    }\n    \n    val weakZombie: Zombie? = null\n    // TODO: let을 사용하여 weakZombie가 null이 아닐 때만 \"공격!\"을 출력하게 하세요\n    weakZombie?.let {\n        \n    }\n}",
+          "validation": {
+            "type": "contains",
+            "pattern": "apply",
+            "message": "주문이 간결해졌습니다! 좀비가 순식간에 무장했습니다. ✨"
+          },
+          "hint": "`apply` 블록 안에서는 `this`를 생략하고 프로퍼티에 직접 접근할 수 있습니다.",
           "order": 1
         },
         {
-          "id": "먼저-결론부터-말하자면-63",
-          "title": "코루틴 vs 스레드",
-          "content": "코루틴은 '스레드 위에서 동작하는 가벼운 작업 단위'입니다. 스레드 하나를 독점하지 않고, 필요할 때만 잠시 빌려 쓰고 반납합니다. 스레드는 생성 비용이 비싸지만 코루틴은 매우 저렴하여 수만 개를 동시에 실행할 수 있습니다. `delay()`는 스레드를 반납하며 대기(suspend)하지만, `Thread.sleep()`은 스레드를 점유하며 대기(block)합니다.",
+          "id": "core-3-when",
+          "title": "선택의 갈림길 (When)",
+          "content": "스토리: 좀비의 종류에 따라 다른 공격력을 가져야 합니다. `if-else` 지옥에서 벗어나 `when` 마법을 쓰세요.\n\n개념: `when`은 값을 반환하는 표현식(Expression)으로 쓰일 수 있습니다. `sealed class`와 함께 쓰면 모든 경우를 처리했는지 컴파일러가 확인해줍니다.",
+          "codeExample": "val damage = when(zombieType) {\n    is Giant -> 100\n    is Scout -> 10\n    else -> 5\n}",
+          "initialCode": "sealed class ZombieType\nobject Giant : ZombieType()\nobject Scout : ZombieType()\nobject Normal : ZombieType()\n\nfun getDamage(type: ZombieType): Int {\n    // TODO: when을 사용하여 Giant는 100, Scout는 20, Normal은 10을 반환하세요\n    return when(type) {\n        \n        \n        \n    }\n}",
+          "validation": {
+            "type": "contains",
+            "pattern": "when",
+            "message": "현명한 선택입니다! 각 좀비가 제 몫을 다하겠군요. ⚖️"
+          },
+          "hint": "`is Giant -> 100`과 같은 형식을 사용하세요.",
           "order": 2
         }
       ],
       "order": 8
-    },
-    {
-      "id": "coroutine-advanced",
-      "title": "코루틴 고급 주제",
-      "description": "코루틴의 내부 동작 및 고급 주제에 대해 학습합니다.",
-      "lessons": [
-        {
-          "id": "9-자주-하는-실수-41",
-          "title": "자주 하는 실수",
-          "content": "코루틴 사용 시 흔히 하는 실수로는 `GlobalScope` 남용, `suspend` 함수 내에서 블로킹 호출(`runBlocking` 등) 사용, 예외 무시, 작업 성격에 맞지 않는 디스패처 선택 등이 있습니다. 이러한 실수는 성능 저하나 예측 불가능한 동작을 유발할 수 있습니다.",
-          "codeExample": "// ❌ 잘못된 예\nsuspend fun fetchData(): String {\n    return runBlocking {  // suspend 함수 안에서 runBlocking 사용 금지!\n        httpClient.get(\"url\")\n    }\n}",
-          "initialCode": "// 코드를 여기에 작성하세요\n",
-          "order": 0
-        },
-        {
-          "id": "코루틴의-fsm과-힙-메모리-저장-방식-109",
-          "title": "코루틴의 내부 동작 (FSM)",
-          "content": "코틀린 컴파일러는 `suspend` 함수를 FSM(Finite State Machine)으로 변환합니다. 함수의 지역 변수들은 `Continuation` 객체의 필드로 저장되어 힙 메모리에 보관됩니다. 이를 통해 코루틴이 중단되었다가 다른 스레드에서 재개되어도 상태가 유지될 수 있습니다.",
-          "order": 1
-        },
-        {
-          "id": "호출-그룹-caller-group-코루틴이-어느-job-계층에-속해-있는가-structured-concurrency의-부모-자식-관계-127",
-          "title": "호출 그룹 vs 워커 그룹",
-          "content": "호출 그룹(Caller Group)은 코루틴의 `Job` 계층 구조(부모-자식 관계)를 의미하며, 생명주기, 예외/취소 전파를 담당합니다. 워커 그룹(Worker Group)은 코루틴이 실제로 실행되는 스레드 풀(`Dispatcher`)을 의미합니다. 이 둘은 서로 독립적입니다.",
-          "order": 2
-        }
-      ],
-      "order": 9
-    },
-    {
-      "id": "dsl-288655e8316980949c8cf8a38253771d",
-      "title": "코틀린 DSL",
-      "description": "",
-      "lessons": [
-        {
-          "id": "코틀린-dsl-0",
-          "title": "코틀린 DSL",
-          "content": "",
-          "order": 0
-        },
-        {
-          "id": "1-dsl이란-무엇인가-1",
-          "title": "1. DSL이란 무엇인가?",
-          "content": "1.1 DSL의 정의DSL(Domain Specific Language)은 특정 도메인이나 문제 영역에 특화된 언어입니다. 범용 프로그래밍 언어와 달리, DSL은 특정 작업을 더 쉽고 명확하게 표현하기 위해 설계됩니다.범용 언어 vs DSL:범용 언어(GPL): Java, Python, C++ 등 - 모든 종류의 문제를 해결할 수 있도록 설계DSL: SQL, HTML, CSS, Gradle 등 - 특정 도메인의 문제 해결에 최적화1.2 DSL의 종류외부 DSL (External DSL):독립적인 문법과 구문을 가진 언어별도의 파서와 인터프리터가 필요예: SQL, HTML, CSS, Regex내부 DSL (Internal DSL):호스트 언어(일반 프로그래밍 언어) 내부에서 작성호스트 언어의 문법을 활용별도의 파서 불필요예: Kotlin의 HTML DSL, Gradle Kotlin DSL1.3 DSL의 장점가독성 향상:도메인 전문가와의 협업:비개발자도 이해하기 쉬운 코드비즈니스 로직을 명확하게 표현유지보수성 향상생산성 증가:보일러플레이트 코드 감소직관적인 API타입 안정성 보장",
-          "codeExample": "// 일반적인 코드\nval table = Table()\ntable.addRow(Row().apply {\n    addCell(Cell(\"Name\"))\n    addCell(Cell(\"Age\"))\n})\n\n// DSL을 사용한 코드\ntable {\n    row {\n        cell(\"Name\")\n        cell(\"Age\")\n    }\n}",
-          "initialCode": "// Write your code here\n",
-          "order": 1
-        }
-      ],
-      "order": 10
-    },
-    {
-      "id": "ktor-features",
-      "title": "Ktor 웹 프레임워크",
-      "description": "Ktor 프레임워크의 주요 기능과 코루틴 활용법을 학습합니다.",
-      "lessons": [
-        {
-          "id": "요약하자면-86",
-          "title": "Ktor와 코루틴",
-          "content": "Ktor의 라우팅 핸들러(`get`, `post` 등)는 이미 코루틴 환경이므로, 내부에서 `suspend` 함수를 바로 호출할 수 있습니다. `launch`나 `async`를 불필요하게 사용할 필요가 없습니다. 요청과 독립적인 백그라운드 작업이 필요할 때만 `application.launch` 등을 사용하여 별도의 스코프에서 코루틴을 실행합니다.",
-          "order": 0
-        },
-        {
-          "id": "1-가장-큰-차이-ktor는-코루틴-기반-spring은-스레드-기반-95",
-          "title": "Ktor vs Spring MVC",
-          "content": "Ktor는 요청마다 코루틴을 사용하여 논블로킹 방식으로 동작하는 반면, Spring MVC는 요청마다 스레드를 할당하여 블로킹 방식으로 동작합니다. 이 차이로 인해 Ktor는 적은 스레드로 많은 동시 요청을 효율적으로 처리할 수 있습니다.",
-          "order": 1
-        },
-        {
-          "id": "kotlin의-content-negotiation-140",
-          "title": "Content Negotiation (콘텐츠 협상)",
-          "content": "Content Negotiation은 클라이언트와 서버가 HTTP 헤더(`Accept`, `Content-Type`)를 통해 데이터 포맷(JSON, XML 등)을 협상하는 메커니즘입니다. Ktor는 `ContentNegotiation` 플러그인을 통해 이 과정을 자동화하여, 객체를 자동으로 직렬화/역직렬화 해줍니다.",
-          "order": 2
-        },
-        {
-          "id": "설치-및-기본-사용-155",
-          "title": "Call Logging (호출 로깅)",
-          "content": "`CallLogging` 플러그인을 설치하면 들어오는 모든 HTTP 요청과 응답을 자동으로 로깅할 수 있습니다. 이를 통해 API 호출을 쉽게 추적하고 디버깅할 수 있습니다.",
-          "codeExample": "fun Application.configureLogging() {\n    install(CallLogging) {\n        level = Level.INFO\n    }\n}",
-          "initialCode": "// 코드를 여기에 작성하세요\n",
-          "order": 3
-        },
-        {
-          "id": "왜-필요한가-161",
-          "title": "Caching Headers (캐싱 헤더)",
-          "content": "`CachingHeaders` 플러그인은 HTTP 응답에 `Cache-Control`과 같은 캐싱 관련 헤더를 쉽게 추가할 수 있게 해줍니다. 클라이언트나 프록시 서버가 응답을 캐싱하도록 하여 성능을 향상시키고 서버 부하를 줄일 수 있습니다.",
-          "order": 4
-        },
-        {
-          "id": "기본-설정-168",
-          "title": "Status Pages (상태 페이지)",
-          "content": "`StatusPages` 플러그인을 사용하면 예외나 HTTP 상태 코드(404 Not Found, 500 Internal Server Error 등)에 따라 일관된 에러 응답 페이지나 JSON 응답을 중앙에서 처리할 수 있습니다. 이를 통해 에러 처리 코드를 깔끔하게 관리할 수 있습니다.",
-          "codeExample": "install(StatusPages) {\n    exception<IllegalArgumentException> { call, cause ->\n        call.respond(HttpStatusCode.BadRequest, cause.message ?: \"Invalid argument\")\n    }\n}",
-          "initialCode": "// 코드를 여기에 작성하세요\n",
-          "order": 5
-        },
-        {
-          "id": "커넥션-풀링이-없을-때-비효율-176",
-          "title": "DB 커넥션 풀링",
-          "content": "커넥션 풀링은 데이터베이스 연결을 미리 여러 개 만들어 '풀(pool)'에 보관하고, 필요할 때마다 빌려 쓰고 반납하는 기술입니다. 매 요청마다 DB 연결을 새로 생성하고 닫는 비용을 없애주므로 웹 애플리케이션의 성능을 크게 향상시킵니다. HikariCP는 Ktor에서 널리 사용되는 커넥션 풀 라이브러리입니다.",
-          "order": 6
-        }
-      ],
-      "order": 11
-    },
-    {
-      "id": "kotlin-core-features",
-      "title": "코틀린 핵심 기능",
-      "description": "데이터 클래스, 확장 함수, 예외 처리 등 코틀린의 핵심적인 기능들을 학습합니다.",
-      "lessons": [
-        {
-          "id": "1-데이터-클래스-data-class-15",
-          "title": "데이터 클래스 (Data Class)",
-          "content": "`data class`는 데이터 보관을 목적으로 하는 클래스를 간결하게 생성하는 키워드입니다. `toString()`, `equals()`, `hashCode()`, `copy()`와 같은 보일러플레이트 메서드를 자동으로 생성해주어 DTO, VO, 모델 클래스 작성 시 매우 유용합니다.",
-          "order": 0
-        },
-        {
-          "id": "2-확장-함수-extension-function-22",
-          "title": "확장 함수 (Extension Function)",
-          "content": "확장 함수는 기존 클래스의 소스 코드를 수정하지 않고 새로운 함수를 추가하는 기능입니다. 표준 라이브러리나 외부 라이브러리의 클래스에 유틸리티 함수를 추가하여 코드의 가독성과 재사용성을 높일 수 있습니다.",
-          "codeExample": "fun String.isEmail(): Boolean = this.contains(\"@\") && this.contains(\".\")",
-          "initialCode": "// 코드를 여기에 작성하세요\n",
-          "order": 1
-        },
-        {
-          "id": "chatgpt-said-240",
-          "title": "에러 처리 기법",
-          "content": "코틀린에서는 `try/catch` 외에도 `Result<T>`, `sealed class`, `Arrow` 라이브러리의 `Either` 등 다양한 방법으로 오류를 처리할 수 있습니다. 함수형 스타일의 값 기반 에러 처리는 오류를 타입으로 명시하여 코드의 안정성을 높여줍니다.",
-          "order": 2
-        },
-        {
-          "id": "kotlin-result-문법-한눈에-정리-261",
-          "title": "Result<T> 타입",
-          "content": "`Result<T>`는 성공 값(T) 또는 실패(Throwable)를 감싸는 표준 라이브러리 타입입니다. `runCatching`과 함께 사용하면 예외가 발생할 수 있는 코드를 안전하게 실행하고, 그 결과를 값으로 다룰 수 있게 해줍니다.",
-          "order": 3
-        },
-        {
-          "id": "1-함수형-프로그래밍이란-267",
-          "title": "함수형 프로그래밍",
-          "content": "함수형 프로그래밍은 순수 함수(pure function)와 불변 데이터(immutable data)를 사용하여 부수 효과(side effect)를 최소화하는 프로그래밍 패러다임입니다. 코틀린은 `map`, `filter`와 같은 고차 함수를 통해 함수형 스타일을 강력하게 지원하며, 이를 통해 더 간결하고 예측 가능한 코드를 작성할 수 있습니다.",
-          "order": 4
-        },
-        {
-          "id": "1-핵심-차이-283",
-          "title": "forEach vs also",
-          "content": "`forEach`는 컬렉션을 반복 실행만 하고 `Unit`을 반환하여 체이닝이 불가능합니다. 반면 `also`는 자기 자신을 반환하므로, 중간에 로깅과 같은 부가 작업을 수행한 후에도 함수 체이닝을 계속 이어갈 수 있습니다.",
-          "order": 5
-        },
-        {
-          "id": "1-sum-vs-sumof-288",
-          "title": "sum vs sumOf",
-          "content": "`sum()`은 숫자 타입의 컬렉션에서만 사용할 수 있습니다. `sumOf`는 객체 컬렉션에서 특정 숫자 프로퍼티(예: 학생의 점수, 상품의 가격)를 추출하여 합계를 구할 때 사용합니다.",
-          "order": 6
-        },
-        {
-          "id": "요약-문장-버전-293",
-          "title": "스코프 함수 (let, run, with, apply, also)",
-          "content": "스코프 함수는 객체의 컨텍스트 내에서 코드 블록을 실행하는 함수입니다. `let`(null 체크 및 변환), `run`(객체 함수 실행 및 결과 반환), `with`(객체 속성 그룹화), `apply`(객체 설정 및 초기화), `also`(부가 효과 및 로깅) 등 각각의 용도에 맞게 사용하면 코드를 더 간결하고 읽기 쉽게 만들 수 있습니다.",
-          "order": 7
-        },
-        {
-          "id": "1-기본-개념-312",
-          "title": "lateinit",
-          "content": "`lateinit`은 non-null 프로퍼티의 초기화를 나중으로 미룰 때 사용하는 키워드입니다. 주로 의존성 주입(DI)이나 Android의 `onCreate`와 같이 객체 생성 시점에는 초기화할 수 없는 프로퍼티에 사용됩니다. 초기화 전에 접근하면 `UninitializedPropertyAccessException`이 발생합니다.",
-          "order": 8
-        }
-      ],
-      "order": 12
-    },
-    {
-      "id": "269655e8316980c8b99ee445a0c925bc",
-      "title": "코틀린 미래",
-      "description": "",
-      "lessons": [
-        {
-          "id": "코틀린-미래-0",
-          "title": "코틀린 미래",
-          "content": "",
-          "order": 0
-        },
-        {
-          "id": "1-기초를-단단히-1",
-          "title": "코틀린 마스터 로드맵",
-          "content": "코틀린 전문가가 되기 위한 학습 로드맵입니다. 기초 문법부터 시작하여, 코루틴, DSL, 멀티플랫폼 등 심화 주제를 거쳐, 최종적으로는 컴파일러 내부 동작과 언어 설계 철학까지 이해하는 것을 목표로 합니다.",
-          "order": 1
-        },
-        {
-          "id": "코틀린-kotlin-마스터-로드맵-7",
-          "title": "1단계: 코틀린 기초 다지기",
-          "content": "변수, 제어 흐름, 함수, 클래스 등 기본적인 문법과 개념을 익히고, 자바와의 차이점을 명확하게 이해하는 단계입니다.",
-          "order": 2
-        },
-        {
-          "id": "2단계-코틀린-중급-코틀린다운-코드-작성-3-4주-9",
-          "title": "2단계: 코틀린다운 코드 작성",
-          "content": "데이터 클래스, 확장 함수, 람다, 스코프 함수, 컬렉션 API 등 코틀린의 특성을 활용하여 간결하고 효율적인 코드를 작성하는 능력을 기르는 단계입니다.",
-          "order": 3
-        },
-        {
-          "id": "3단계-코틀린-고급-동시성-프로그래밍-5-6주-10",
-          "title": "3단계: 동시성 프로그래밍 (코루틴)",
-          "content": "코루틴, `suspend` 함수, 디스패처, `Flow` 등을 완벽하게 이해하고 비동기 및 동시성 프로그래밍을 능숙하게 처리하는 단계입니다.",
-          "order": 4
-        },
-        {
-          "id": "4단계-멀티플랫폼-프로젝트-7-8주-11",
-          "title": "4단계: 멀티플랫폼 프로젝트 (KMP)",
-          "content": "Kotlin Multiplatform(KMP)을 활용하여 Android, iOS, 데스크톱 등 여러 플랫폼에서 동작하는 애플리케이션을 개발하며 공통 로직을 공유하는 방법을 학습하는 단계입니다.",
-          "order": 5
-        },
-        {
-          "id": "5단계-실전-프로젝트-및-심화-학습-9주-이후-12",
-          "title": "5단계: 심화 학습 및 실전",
-          "content": "개인 프로젝트, 오픈 소스 기여 등을 통해 실전 문제 해결 능력을 기르고, 코틀린의 새로운 기술 동향을 꾸준히 학습하는 단계입니다.",
-          "order": 6
-        }
-      ],
-      "order": 13
     }
   ]
 }
