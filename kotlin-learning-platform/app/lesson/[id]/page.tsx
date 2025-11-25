@@ -6,16 +6,18 @@ import KotlinPlayground from '@/components/KotlinPlayground';
 
 function findLessonAndChapter(lessonId: string): { lesson: Lesson; chapter: Chapter } | null {
   const { chapters } = lessonsData as ParsedContent;
-  
+
   for (const chapter of chapters) {
     const lesson = chapter.lessons.find((l) => l.id === lessonId);
     if (lesson) {
       return { lesson, chapter };
     }
   }
-  
+
   return null;
 }
+
+export const runtime = 'edge';
 
 export default async function LessonPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
