@@ -2,6 +2,7 @@ import lessonsData from '@/lib/content/lessons.json';
 import { ParsedContent, Lesson, Chapter } from '@/types';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import KotlinPlayground from '@/components/KotlinPlayground';
 
 function findLessonAndChapter(lessonId: string): { lesson: Lesson; chapter: Chapter } | null {
   const { chapters } = lessonsData as ParsedContent;
@@ -170,29 +171,12 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
             </div>
           </div>
 
-          {/* Right: Code Editor Placeholder */}
+          {/* Right: Code Editor */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
               코드 에디터
             </h2>
-            <div className="bg-gray-900 dark:bg-gray-950 rounded-lg p-4 min-h-[400px] font-mono text-sm">
-              <pre className="text-gray-300">
-                {lesson.initialCode || '// 여기에 코드를 작성하세요\n'}
-              </pre>
-            </div>
-            <div className="mt-4 flex gap-3">
-              <button className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
-                코드 실행
-              </button>
-              <button className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
-                초기화
-              </button>
-            </div>
-            <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-900 rounded-lg">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                💡 코드 에디터는 곧 구현될 예정입니다.
-              </p>
-            </div>
+            <KotlinPlayground lesson={lesson} />
           </div>
         </div>
       </div>
