@@ -39,7 +39,7 @@ export default function KotlinPlayground({ lesson, onSuccess }: KotlinPlayground
     return () => {
       // Cleanup if necessary
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lesson.id]); // Re-init when lesson changes
 
   const initPlayground = () => {
@@ -48,7 +48,7 @@ export default function KotlinPlayground({ lesson, onSuccess }: KotlinPlayground
       // However, React might have re-rendered.
       // We need to ensure the div contains the initial code before initializing.
       codeRef.current.innerHTML = ""; // Clear
-      
+
       // Create a code element
       const codeElement = document.createElement('code');
       codeElement.className = 'kotlin-code';
@@ -57,7 +57,7 @@ export default function KotlinPlayground({ lesson, onSuccess }: KotlinPlayground
       // Add attributes for customization if needed
       codeElement.setAttribute('theme', 'darcula');
       codeElement.setAttribute('data-target-platform', 'java'); // or junit
-      
+
       codeRef.current.appendChild(codeElement);
 
       window.KotlinPlayground(codeElement, {
@@ -65,7 +65,7 @@ export default function KotlinPlayground({ lesson, onSuccess }: KotlinPlayground
           setUserCode(code);
         },
         onTestPassed: () => {
-            // Optional: Auto-success on test pass?
+          // Optional: Auto-success on test pass?
         }
       }).then((instances: any[]) => {
         setPlaygroundInstance(instances[0]);
@@ -88,23 +88,23 @@ export default function KotlinPlayground({ lesson, onSuccess }: KotlinPlayground
 
     const { type, pattern, message } = lesson.validation;
     let success = false;
-    
-    // Additional validation types
-    // We can support an array of validations in the future, but for now single check.
-    
+
+    // 주석 제거 (한 줄 주석 // 및 여러 줄 주석 /* */)
+    const cleanCode = userCode.replace(/\/\/.*$|\/\*[\s\S]*?\*\//gm, '');
+
     switch (type) {
       case 'contains':
-        success = userCode.includes(pattern);
+        success = cleanCode.includes(pattern);
         break;
       case 'notContains':
-        success = !userCode.includes(pattern);
+        success = !cleanCode.includes(pattern);
         break;
       case 'exact':
-        success = userCode.trim() === pattern.trim();
+        success = cleanCode.trim() === pattern.trim();
         break;
       case 'regex':
         const regex = new RegExp(pattern);
-        success = regex.test(userCode);
+        success = regex.test(cleanCode);
         break;
     }
 
@@ -160,11 +160,10 @@ export default function KotlinPlayground({ lesson, onSuccess }: KotlinPlayground
       {/* Result Message */}
       {result && (
         <div
-          className={`p-4 rounded-lg ${
-            result.success
+          className={`p-4 rounded-lg ${result.success
               ? 'bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500'
               : 'bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500'
-          }`}
+            }`}
         >
           <div className="flex items-start">
             {result.success ? (
@@ -194,11 +193,10 @@ export default function KotlinPlayground({ lesson, onSuccess }: KotlinPlayground
             )}
             <div className="flex-1">
               <p
-                className={`font-medium ${
-                  result.success
+                className={`font-medium ${result.success
                     ? 'text-green-800 dark:text-green-300'
                     : 'text-red-800 dark:text-red-300'
-                }`}
+                  }`}
               >
                 {result.message}
               </p>
