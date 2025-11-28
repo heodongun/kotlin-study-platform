@@ -14,8 +14,8 @@ declare global {
   }
 }
 
-const playgroundCdn =
-  'https://unpkg.com/@jetbrains/kotlin-playground@1.10.0/build/kotlin-playground.min.js';
+// Use the latest version from the official CDN
+const PLAYGROUND_CDN = 'https://unpkg.com/kotlin-playground@1';
 
 const storageKey = (lessonId: string) => `kotlin-playground-${lessonId}`;
 
@@ -23,7 +23,7 @@ export default function KotlinPlayground({ lesson, onSuccess }: KotlinPlayground
   const codeRef = useRef<HTMLDivElement>(null);
   const [userCode, setUserCode] = useState(lesson.initialCode || '');
   const [isChecking, setIsChecking] = useState(false);
-  const [playgroundReady, setPlaygroundReady] = useState(false);
+  const [playgroundStatus, setPlaygroundStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [resolvedInitialCode, setResolvedInitialCode] = useState(lesson.initialCode || '');
   const [carriedFrom, setCarriedFrom] = useState<string | null>(null);
   const [result, setResult] = useState<{
@@ -56,29 +56,43 @@ export default function KotlinPlayground({ lesson, onSuccess }: KotlinPlayground
     return { code: fallback, carried: null };
   }, [lesson]);
 
-  // Load Kotlin Playground Script once
+  // Load Kotlin Playground Script manually for better control
   useEffect(() => {
     if (typeof window === 'undefined') return;
+
     if (window.KotlinPlayground) {
-      setPlaygroundReady(true);
+      setPlaygroundStatus('ready');
       return;
     }
 
-    const existing = document.querySelector(`script[src="${playgroundCdn}"]`);
-    if (existing) {
-      existing.addEventListener('load', () => setPlaygroundReady(true));
+    const scriptId = 'kotlin-playground-script';
+    const existingScript = document.getElementById(scriptId);
+
+    if (existingScript) {
+      existingScript.addEventListener('load', () => setPlaygroundStatus('ready'));
+      existingScript.addEventListener('error', () => setPlaygroundStatus('error'));
       return;
     }
 
     const script = document.createElement('script');
-    script.src = playgroundCdn;
+    script.id = scriptId;
+    script.src = PLAYGROUND_CDN;
     script.async = true;
-    script.defer = true;
-    script.onload = () => setPlaygroundReady(true);
+    script.onload = () => setPlaygroundStatus('ready');
+    script.onerror = () => setPlaygroundStatus('error');
     document.body.appendChild(script);
+
+    // Timeout fallback
+    const timeout = setTimeout(() => {
+      if (!window.KotlinPlayground) {
+        setPlaygroundStatus('error');
+      }
+    }, 10000); // 10s timeout
+
+    return () => clearTimeout(timeout);
   }, []);
 
-  // When lesson changes, figure out starting code (with carry-over if any)
+  // When lesson changes, figure out starting code
   useEffect(() => {
     const { code, carried } = resolveInitialCode();
     setUserCode(code);
@@ -87,19 +101,22 @@ export default function KotlinPlayground({ lesson, onSuccess }: KotlinPlayground
     setResult(null);
   }, [lesson, resolveInitialCode]);
 
-  // Initialize Kotlin Playground with resolved code
+  // Initialize Kotlin Playground
   useEffect(() => {
-    if (!playgroundReady || !resolvedInitialCode || !codeRef.current || !window.KotlinPlayground) return;
+    if (playgroundStatus !== 'ready' || !resolvedInitialCode || !codeRef.current || !window.KotlinPlayground) return;
 
     codeRef.current.innerHTML = '';
 
     const codeElement = document.createElement('code');
     codeElement.className = 'kotlin-code';
     codeElement.textContent = resolvedInitialCode;
+
     codeElement.setAttribute('theme', 'darcula');
     codeElement.setAttribute('data-target-platform', 'jvm');
     codeElement.setAttribute('data-autocomplete', 'true');
-    codeElement.setAttribute('data-minimap', 'true');
+    codeElement.setAttribute('data-highlight-on-fly', 'true');
+    codeElement.setAttribute('match-brackets', 'true');
+    codeElement.setAttribute('indent', '4');
 
     codeRef.current.appendChild(codeElement);
 
@@ -107,16 +124,14 @@ export default function KotlinPlayground({ lesson, onSuccess }: KotlinPlayground
       onChange: (code: string) => {
         setUserCode(code);
       },
-    }).then((instances: any[]) => {
-      // Keep the instance alive for a smoother, higher-perf typing experience.
-      const [instance] = instances;
-      if (instance?.refresh) {
-        instance.refresh();
+      onTestPassed: () => {
+        // Optional hook
       }
     });
-  }, [playgroundReady, resolvedInitialCode, lesson.id]);
 
-  // Persist code as the learner types so 다음 스테이지에서 이어붙일 수 있음
+  }, [playgroundStatus, resolvedInitialCode, lesson.id]);
+
+  // Persist code
   useEffect(() => {
     if (typeof window === 'undefined') return;
     localStorage.setItem(storageKey(lesson.id), userCode);
@@ -182,6 +197,17 @@ export default function KotlinPlayground({ lesson, onSuccess }: KotlinPlayground
     setResult(null);
   };
 
+  // Fallback URL for iframe
+  const getFallbackUrl = () => {
+    const baseUrl = 'https://play.kotlinlang.org/embed/v1';
+    const params = new URLSearchParams({
+      code: userCode,
+      targetPlatform: 'jvm',
+      theme: 'darcula'
+    });
+    return `${baseUrl}?${params.toString()}`;
+  };
+
   return (
     <div className="flex flex-col h-full space-y-3">
       <div className="rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 px-3 py-2 text-sm text-blue-900 dark:text-blue-200">
@@ -194,14 +220,36 @@ export default function KotlinPlayground({ lesson, onSuccess }: KotlinPlayground
         </div>
       )}
 
-      <div className="flex-1 mb-2 relative min-h-[420px] rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 shadow-inner bg-gray-950/70">
-        <div ref={codeRef} className="w-full h-full" />
+      <div className="flex-1 mb-2 relative min-h-[500px] rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 shadow-inner bg-gray-950">
+        {playgroundStatus === 'loading' && (
+          <div className="absolute inset-0 flex items-center justify-center text-gray-400 bg-gray-900 z-10">
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+              <span>에디터 로딩 중...</span>
+            </div>
+          </div>
+        )}
+
+        {playgroundStatus === 'error' ? (
+          <div className="w-full h-full flex flex-col">
+            <div className="bg-red-500/10 text-red-500 text-xs p-2 text-center">
+              스크립트 로딩 실패. 백업 에디터(IFrame)를 사용합니다. (자동 저장/검증 제한됨)
+            </div>
+            <iframe
+              src={getFallbackUrl()}
+              className="w-full h-full border-0"
+              title="Kotlin Playground Fallback"
+            />
+          </div>
+        ) : (
+          <div ref={codeRef} className="w-full h-full [&_.kotlin-playground-wrapper]:h-full [&_.kotlin-playground-wrapper]:flex [&_.kotlin-playground-wrapper]:flex-col" />
+        )}
       </div>
 
       <div className="flex gap-3">
         <button
           onClick={checkAnswer}
-          disabled={isChecking}
+          disabled={isChecking || playgroundStatus === 'error'}
           className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isChecking ? '확인 중...' : '정답 확인'}
