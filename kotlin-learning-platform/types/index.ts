@@ -12,10 +12,14 @@ export interface Lesson {
   id: string;
   title: string;
   content: string;
+  arc?: string; // 이야기/세부 트랙 구분
+  story?: string; // 크립토좀비 스타일 서사
   codeExample?: string;
   initialCode?: string;
   hint?: string;
+  continueFrom?: string; // 이전 레슨 코드와 이어 붙일 때 사용
   validation?: ValidationRule;
+  checkpointMessage?: string;
   order: number;
 }
 

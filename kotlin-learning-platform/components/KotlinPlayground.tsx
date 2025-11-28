@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Lesson } from '@/types';
 
 interface KotlinPlaygroundProps {
@@ -14,64 +14,113 @@ declare global {
   }
 }
 
+const playgroundCdn =
+  'https://unpkg.com/@jetbrains/kotlin-playground@1.10.0/build/kotlin-playground.min.js';
+
+const storageKey = (lessonId: string) => `kotlin-playground-${lessonId}`;
+
 export default function KotlinPlayground({ lesson, onSuccess }: KotlinPlaygroundProps) {
   const codeRef = useRef<HTMLDivElement>(null);
   const [userCode, setUserCode] = useState(lesson.initialCode || '');
   const [isChecking, setIsChecking] = useState(false);
-  const [playgroundInstance, setPlaygroundInstance] = useState<any>(null);
+  const [playgroundReady, setPlaygroundReady] = useState(false);
+  const [resolvedInitialCode, setResolvedInitialCode] = useState(lesson.initialCode || '');
+  const [carriedFrom, setCarriedFrom] = useState<string | null>(null);
   const [result, setResult] = useState<{
     success: boolean;
     message: string;
   } | null>(null);
 
-  // Load Kotlin Playground Script
+  const resolveInitialCode = useCallback(() => {
+    const fallback = lesson.initialCode || lesson.codeExample || '// 코드를 작성하세요';
+
+    if (typeof window === 'undefined') {
+      return { code: fallback, carried: null };
+    }
+
+    const saved = localStorage.getItem(storageKey(lesson.id));
+    if (saved) {
+      return { code: saved, carried: null };
+    }
+
+    if (lesson.continueFrom) {
+      const previous = localStorage.getItem(storageKey(lesson.continueFrom));
+      if (previous) {
+        return {
+          code: `// 이전 스테이지 코드에서 이어집니다\n${previous}`,
+          carried: lesson.continueFrom,
+        };
+      }
+    }
+
+    return { code: fallback, carried: null };
+  }, [lesson]);
+
+  // Load Kotlin Playground Script once
   useEffect(() => {
-    if (!window.KotlinPlayground) {
-      const script = document.createElement('script');
-      script.src = 'https://unpkg.com/kotlin-playground@1';
-      script.async = true;
-      script.onload = () => initPlayground();
-      document.body.appendChild(script);
-    } else {
-      initPlayground();
+    if (typeof window === 'undefined') return;
+    if (window.KotlinPlayground) {
+      setPlaygroundReady(true);
+      return;
     }
 
-    return () => {
-      // Cleanup if necessary
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lesson.id]); // Re-init when lesson changes
-
-  const initPlayground = () => {
-    if (codeRef.current && window.KotlinPlayground) {
-      // Clear previous instance content if needed, but usually replacing the target div works.
-      // However, React might have re-rendered.
-      // We need to ensure the div contains the initial code before initializing.
-      codeRef.current.innerHTML = ""; // Clear
-
-      // Create a code element
-      const codeElement = document.createElement('code');
-      codeElement.className = 'kotlin-code';
-      // Use lesson.initialCode. If it has // sampleStart, the playground handles it.
-      codeElement.textContent = lesson.initialCode || '// 코드를 작성하세요';
-      // Add attributes for customization if needed
-      codeElement.setAttribute('theme', 'darcula');
-      codeElement.setAttribute('data-target-platform', 'java'); // or junit
-
-      codeRef.current.appendChild(codeElement);
-
-      window.KotlinPlayground(codeElement, {
-        onChange: (code: string) => {
-          setUserCode(code);
-        },
-        onTestPassed: () => {
-          // Optional: Auto-success on test pass?
-        }
-      }).then((instances: any[]) => {
-        setPlaygroundInstance(instances[0]);
-      });
+    const existing = document.querySelector(`script[src="${playgroundCdn}"]`);
+    if (existing) {
+      existing.addEventListener('load', () => setPlaygroundReady(true));
+      return;
     }
-  };
+
+    const script = document.createElement('script');
+    script.src = playgroundCdn;
+    script.async = true;
+    script.defer = true;
+    script.onload = () => setPlaygroundReady(true);
+    document.body.appendChild(script);
+  }, []);
+
+  // When lesson changes, figure out starting code (with carry-over if any)
+  useEffect(() => {
+    const { code, carried } = resolveInitialCode();
+    setUserCode(code);
+    setResolvedInitialCode(code);
+    setCarriedFrom(carried);
+    setResult(null);
+  }, [lesson, resolveInitialCode]);
+
+  // Initialize Kotlin Playground with resolved code
+  useEffect(() => {
+    if (!playgroundReady || !resolvedInitialCode || !codeRef.current || !window.KotlinPlayground) return;
+
+    codeRef.current.innerHTML = '';
+
+    const codeElement = document.createElement('code');
+    codeElement.className = 'kotlin-code';
+    codeElement.textContent = resolvedInitialCode;
+    codeElement.setAttribute('theme', 'darcula');
+    codeElement.setAttribute('data-target-platform', 'jvm');
+    codeElement.setAttribute('data-autocomplete', 'true');
+    codeElement.setAttribute('data-minimap', 'true');
+
+    codeRef.current.appendChild(codeElement);
+
+    window.KotlinPlayground(codeElement, {
+      onChange: (code: string) => {
+        setUserCode(code);
+      },
+    }).then((instances: any[]) => {
+      // Keep the instance alive for a smoother, higher-perf typing experience.
+      const [instance] = instances;
+      if (instance?.refresh) {
+        instance.refresh();
+      }
+    });
+  }, [playgroundReady, resolvedInitialCode, lesson.id]);
+
+  // Persist code as the learner types so 다음 스테이지에서 이어붙일 수 있음
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem(storageKey(lesson.id), userCode);
+  }, [lesson.id, userCode]);
 
   const checkAnswer = () => {
     setIsChecking(true);
@@ -89,7 +138,6 @@ export default function KotlinPlayground({ lesson, onSuccess }: KotlinPlayground
     const { type, pattern, message } = lesson.validation;
     let success = false;
 
-    // 주석 제거 (한 줄 주석 // 및 여러 줄 주석 /* */)
     const cleanCode = userCode.replace(/\/\/.*$|\/\*[\s\S]*?\*\//gm, '');
 
     switch (type) {
@@ -103,15 +151,14 @@ export default function KotlinPlayground({ lesson, onSuccess }: KotlinPlayground
         success = cleanCode.trim() === pattern.trim();
         break;
       case 'regex':
-        const regex = new RegExp(pattern);
-        success = regex.test(cleanCode);
+        success = new RegExp(pattern).test(cleanCode);
         break;
     }
 
     if (success) {
       setResult({
         success: true,
-        message: message || '정답입니다! 🎉',
+        message: lesson.checkpointMessage || message || '정답입니다! 🎉',
       });
       onSuccess?.();
     } else {
@@ -125,23 +172,33 @@ export default function KotlinPlayground({ lesson, onSuccess }: KotlinPlayground
   };
 
   const resetCode = () => {
-    // To reset, we might need to re-initialize or use the playground API if available.
-    // Simple way: Update state and re-init.
-    setUserCode(lesson.initialCode || '');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(storageKey(lesson.id));
+    }
+    const { code, carried } = resolveInitialCode();
+    setUserCode(code);
+    setResolvedInitialCode(code);
+    setCarriedFrom(carried);
     setResult(null);
-    initPlayground();
   };
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Playground Container */}
-      <div className="flex-1 mb-4 relative min-h-[400px]">
-        {/* We use a ref to mount the playground */}
+    <div className="flex flex-col h-full space-y-3">
+      <div className="rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 px-3 py-2 text-sm text-blue-900 dark:text-blue-200">
+        ⚠️ 이 실습의 채점 시스템은 코드의 구조와 패턴을 분석합니다. 문제의 요구사항에 맞춰 정확하게 코드를 작성해주세요.
+      </div>
+
+      {carriedFrom && (
+        <div className="rounded-lg border border-amber-200 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 text-sm text-amber-900 dark:text-amber-100">
+          이전 스테이지({carriedFrom})에 저장된 코드를 불러왔어요. 위에 필요한 부분만 추가해 더 강한 스킬을 만들면 됩니다.
+        </div>
+      )}
+
+      <div className="flex-1 mb-2 relative min-h-[420px] rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 shadow-inner bg-gray-950/70">
         <div ref={codeRef} className="w-full h-full" />
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex gap-3 mb-4">
+      <div className="flex gap-3">
         <button
           onClick={checkAnswer}
           disabled={isChecking}
@@ -157,12 +214,11 @@ export default function KotlinPlayground({ lesson, onSuccess }: KotlinPlayground
         </button>
       </div>
 
-      {/* Result Message */}
       {result && (
         <div
           className={`p-4 rounded-lg ${result.success
-              ? 'bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500'
-              : 'bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500'
+            ? 'bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500'
+            : 'bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500'
             }`}
         >
           <div className="flex items-start">
@@ -194,8 +250,8 @@ export default function KotlinPlayground({ lesson, onSuccess }: KotlinPlayground
             <div className="flex-1">
               <p
                 className={`font-medium ${result.success
-                    ? 'text-green-800 dark:text-green-300'
-                    : 'text-red-800 dark:text-red-300'
+                  ? 'text-green-800 dark:text-green-300'
+                  : 'text-red-800 dark:text-red-300'
                   }`}
               >
                 {result.message}

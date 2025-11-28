@@ -1,7 +1,7 @@
 {
   "chapters": [
     {
-      "id": "28a655e8316980d8b609ccad9231935a",
+      "id": "코루틴-28a655e8316980d8b609ccad9231935a",
       "title": "코루틴",
       "description": "",
       "lessons": [
@@ -2067,7 +2067,7 @@
       "order": 0
     },
     {
-      "id": "dsl-288655e8316980949c8cf8a38253771d",
+      "id": "코틀린-dsl-288655e8316980949c8cf8a38253771d",
       "title": "코틀린 DSL",
       "description": "",
       "lessons": [
@@ -2451,7 +2451,7 @@
       "order": 1
     },
     {
-      "id": "269655e8316980c8b99ee445a0c925bc",
+      "id": "코틀린-미래-269655e8316980c8b99ee445a0c925bc",
       "title": "코틀린 미래",
       "description": "",
       "lessons": [
